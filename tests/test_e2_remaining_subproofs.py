@@ -11,8 +11,9 @@ Verifies that:
 """
 
 import json
-from bor.decorators import step
+
 from bor.bundle import build_bundle
+from bor.decorators import step
 from bor.subproofs import run_CCP, run_CMIP, run_PP, run_TRP
 
 
@@ -77,7 +78,7 @@ def test_bundle_v2_includes_all_subproofs():
     """Bundle v2 should include all 8 sub-proofs."""
     S0, C, V = 3, {"offset": 2}, "v1.0"
     bundle = build_bundle(S0, C, V, [add, square])
-    
+
     sp = bundle["subproofs"]
     # Check all sub-proofs are present
     assert "DIP" in sp
@@ -124,14 +125,19 @@ def test_h_rich_includes_all_subproofs():
     """H_RICH should be computed from all 8 sub-proofs."""
     S0, C, V = 3, {"offset": 2}, "v1.0"
     bundle = build_bundle(S0, C, V, [add, square])
-    
+
     # Verify all 8 sub-proofs contribute to H_RICH
     assert len(bundle["subproof_hashes"]) == 8
-    
+
     # Manually verify H_RICH computation
     import hashlib
-    sorted_hashes = [bundle["subproof_hashes"][k] for k in sorted(bundle["subproof_hashes"].keys())]
-    expected_h_rich = hashlib.sha256("|".join(sorted_hashes).encode("utf-8")).hexdigest()
+
+    sorted_hashes = [
+        bundle["subproof_hashes"][k] for k in sorted(bundle["subproof_hashes"].keys())
+    ]
+    expected_h_rich = hashlib.sha256(
+        "|".join(sorted_hashes).encode("utf-8")
+    ).hexdigest()
     assert bundle["H_RICH"] == expected_h_rich
 
 
@@ -140,7 +146,7 @@ def test_ccp_different_representations_same_semantics():
     S0, V = 5, "v1.0"
     C1 = {"offset": 3, "extra": "value"}
     C2 = {"extra": "value", "offset": 3}  # Same keys, different order
-    
+
     result = run_CCP(S0, C1, V, [add, square])
     # Due to canonical encoding, both should produce same HMASTER
     assert result["equal"] is True
@@ -150,7 +156,7 @@ def test_cmip_modules_consistent():
     """CMIP should confirm all modules produce identical HMASTER."""
     S0, C, V = 10, {"offset": 5}, "v2.0"
     result = run_CMIP(S0, C, V, [add, square])
-    
+
     assert "core" in result
     assert "verify" in result
     assert "json" in result
@@ -163,12 +169,12 @@ def test_pp_backends_equivalent():
     """PP should prove JSON and SQLite backends are equivalent."""
     S0, C, V = 7, {"offset": 1}, "v1.5"
     result = run_PP(S0, C, V, [add, square])
-    
+
     # Both backends should produce same master
     assert result["master_json"] is not None
     assert result["master_sqlite"] is not None
     assert result["master_json"] == result["master_sqlite"]
-    
+
     # Both should have H_store
     assert result["H_store_json"] is not None
     assert result["H_store_sqlite"] is not None
@@ -178,9 +184,8 @@ def test_trp_time_invariance():
     """TRP should prove reasoning is time-invariant."""
     S0, C, V = 4, {"offset": 3}, "v1.0"
     result = run_TRP(S0, C, V, [add, square], delay_sec=0.1)
-    
+
     assert result["master_t0"] is not None
     assert result["master_t1"] is not None
     assert result["master_t0"] == result["master_t1"]
     assert result["equal"] is True
-

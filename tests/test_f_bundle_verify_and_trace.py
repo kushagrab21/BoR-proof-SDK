@@ -11,10 +11,13 @@ Verifies that:
 
 import json
 from pathlib import Path
-from bor.decorators import step
-from bor.bundle import build_bundle
-from bor.verify import verify_bundle_dict, render_trace_from_primary, BundleVerificationError
+
 import pytest
+
+from bor.bundle import build_bundle
+from bor.decorators import step
+from bor.verify import (BundleVerificationError, render_trace_from_primary,
+                        verify_bundle_dict)
 
 
 @step
@@ -136,7 +139,7 @@ def test_trace_renderer_includes_hashes():
     b = _bundle()
     txt = render_trace_from_primary(b["primary"])
     # Should contain hash values (64 char hex strings)
-    assert len([line for line in txt.split('\n') if len(line) > 64]) > 0
+    assert len([line for line in txt.split("\n") if len(line) > 64]) > 0
 
 
 def test_trace_renderer_deterministic():
@@ -151,10 +154,11 @@ def test_trace_renderer_deterministic():
 def test_verify_bundle_file(tmp_path):
     """verify_bundle_file should load and verify bundle from file."""
     from bor.verify import verify_bundle_file
+
     b = _bundle()
     path = tmp_path / "bundle.json"
     path.write_text(json.dumps(b, sort_keys=True), encoding="utf-8")
-    
+
     rep = verify_bundle_file(str(path))
     assert rep["ok"] is True
 
@@ -162,11 +166,14 @@ def test_verify_bundle_file(tmp_path):
 def test_verify_bundle_file_with_replay(tmp_path):
     """verify_bundle_file should support optional replay check."""
     from bor.verify import verify_bundle_file
+
     b = _bundle()
     path = tmp_path / "bundle.json"
     path.write_text(json.dumps(b, sort_keys=True), encoding="utf-8")
-    
-    rep = verify_bundle_file(str(path), stages=[add, square], S0=3, C={"offset": 2}, V="v1.0")
+
+    rep = verify_bundle_file(
+        str(path), stages=[add, square], S0=3, C={"offset": 2}, V="v1.0"
+    )
     assert rep["ok"] is True
     assert rep["checks"]["primary_master_replay_match"] is True
 
@@ -180,4 +187,3 @@ def test_bundle_verification_report_structure():
     assert isinstance(rep["checks"], dict)
     assert "H_RICH_match" in rep["checks"]
     assert "subproof_hashes_match" in rep["checks"]
-

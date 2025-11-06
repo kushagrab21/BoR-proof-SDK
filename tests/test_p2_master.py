@@ -10,6 +10,7 @@ Verifies that:
 """
 
 import copy
+
 from bor.core import BoRRun
 from bor.decorators import step
 
@@ -88,7 +89,7 @@ def test_p2_step_records_complete():
     """Step records in proof should contain all required fields."""
     r, proof = build_and_finalize(S0=5, C={"offset": 3}, V="v2.0")
     assert len(proof.steps) == 2
-    
+
     # Check first step record
     step1 = proof.steps[0]
     assert step1["i"] == 1
@@ -98,7 +99,7 @@ def test_p2_step_records_complete():
     assert step1["config"] == {"offset": 3}
     assert step1["version"] == "v2.0"
     assert "fingerprint" in step1
-    
+
     # Check second step record
     step2 = proof.steps[1]
     assert step2["i"] == 2
@@ -123,4 +124,3 @@ def test_p2_version_sensitivity():
     _, p1 = build_and_finalize(S0=3, C={"offset": 2}, V="v1.0")
     _, p2 = build_and_finalize(S0=3, C={"offset": 2}, V="v2.0")
     assert p1.master != p2.master
-

@@ -6,21 +6,24 @@ P₄ Persistence checks: JSON vs SQLite equivalence.
 Phase F: Rich Proof Bundle verification and trace rendering.
 """
 
-import json
-import importlib
 import hashlib
-from typing import Callable, Iterable, Dict, Any, List, Optional
+import importlib
+import json
+from typing import Any, Callable, Dict, Iterable, List, Optional
+
 from bor.core import BoRRun
 from bor.store import load_json_proof, load_sqlite_proof
 
 
 class HashMismatchError(Exception):
     """Raised when stored and recomputed HMASTER do not match."""
+
     pass
 
 
 class BundleVerificationError(Exception):
     """Raised when Rich Proof Bundle verification fails."""
+
     pass
 
 
@@ -37,7 +40,9 @@ def _import_stage(path: str) -> Callable:
     return fn
 
 
-def replay_master(S0: Any, C: Dict[str, Any], V: str, stage_fns: Iterable[Callable]) -> str:
+def replay_master(
+    S0: Any, C: Dict[str, Any], V: str, stage_fns: Iterable[Callable]
+) -> str:
     """
     Build a BoRRun, execute steps, and return recomputed HMASTER.
     """
@@ -48,11 +53,13 @@ def replay_master(S0: Any, C: Dict[str, Any], V: str, stage_fns: Iterable[Callab
     return proof.master
 
 
-def verify_primary_proof_dict(proof_obj: Dict[str, Any],
-                              S0: Any,
-                              C: Dict[str, Any],
-                              V: str,
-                              stages: Iterable[Callable]) -> Dict[str, Any]:
+def verify_primary_proof_dict(
+    proof_obj: Dict[str, Any],
+    S0: Any,
+    C: Dict[str, Any],
+    V: str,
+    stages: Iterable[Callable],
+) -> Dict[str, Any]:
     """
     P₃ Verification: recompute HMASTER from supplied code and inputs,
     then compare against stored proof.master.
@@ -61,7 +68,7 @@ def verify_primary_proof_dict(proof_obj: Dict[str, Any],
     """
     stored_master = proof_obj["master"]
     recomputed_master = replay_master(S0, C, V, stages)
-    ok = (stored_master == recomputed_master)
+    ok = stored_master == recomputed_master
     report = {
         "verified": ok,
         "stored_master": stored_master,
@@ -72,11 +79,9 @@ def verify_primary_proof_dict(proof_obj: Dict[str, Any],
     return report
 
 
-def verify_primary_file(proof_path: str,
-                        S0: Any,
-                        C: Dict[str, Any],
-                        V: str,
-                        stage_paths: List[str]) -> Dict[str, Any]:
+def verify_primary_file(
+    proof_path: str, S0: Any, C: Dict[str, Any], V: str, stage_paths: List[str]
+) -> Dict[str, Any]:
     """
     Convenience wrapper: load proof JSON from disk and import stages by path.
     """
@@ -88,7 +93,10 @@ def verify_primary_file(proof_path: str,
 
 # === P₄ Persistence Verification ===
 
-def persistence_equivalence(json_path: str, label: str, root: str = ".bor_store") -> Dict[str, Any]:
+
+def persistence_equivalence(
+    json_path: str, label: str, root: str = ".bor_store"
+) -> Dict[str, Any]:
     """
     Load proof from JSON file and from SQLite (latest by label) and assert same HMASTER.
     Returns a report dict: {equal: bool, master_json: str, master_sqlite: str}
@@ -103,14 +111,21 @@ def persistence_equivalence(json_path: str, label: str, root: str = ".bor_store"
 
 # === Phase F: Bundle Verification ===
 
+
 def _sha256_minified(obj: Dict[str, Any]) -> str:
     """Compute SHA-256 of minified JSON."""
-    return hashlib.sha256(json.dumps(obj, separators=(",", ":"), sort_keys=True).encode("utf-8")).hexdigest()
+    return hashlib.sha256(
+        json.dumps(obj, separators=(",", ":"), sort_keys=True).encode("utf-8")
+    ).hexdigest()
 
 
-def verify_bundle_dict(bundle: Dict[str, Any],
-                       stages: Optional[Iterable[Callable]] = None,
-                       S0: Any = None, C: Dict[str, Any] = None, V: str = None) -> Dict[str, Any]:
+def verify_bundle_dict(
+    bundle: Dict[str, Any],
+    stages: Optional[Iterable[Callable]] = None,
+    S0: Any = None,
+    C: Dict[str, Any] = None,
+    V: str = None,
+) -> Dict[str, Any]:
     """
     Verify a Rich Proof Bundle:
       1) Check structure of 'primary', 'subproofs', 'subproof_hashes', 'H_RICH'
@@ -136,12 +151,14 @@ def verify_bundle_dict(bundle: Dict[str, Any],
 
     # 2) Recompute each sub-proof digest
     recomputed_hashes = {k: _sha256_minified(v) for k, v in subproofs.items()}
-    report["checks"]["subproof_hashes_match"] = (recomputed_hashes == sub_hashes)
+    report["checks"]["subproof_hashes_match"] = recomputed_hashes == sub_hashes
 
     # 3) Recompute H_RICH deterministically (sorted keys)
-    h_concat = "|".join([recomputed_hashes[k] for k in sorted(recomputed_hashes.keys())])
+    h_concat = "|".join(
+        [recomputed_hashes[k] for k in sorted(recomputed_hashes.keys())]
+    )
     H_RICH_re = hashlib.sha256(h_concat.encode("utf-8")).hexdigest()
-    report["checks"]["H_RICH_match"] = (H_RICH == H_RICH_re)
+    report["checks"]["H_RICH_match"] = H_RICH == H_RICH_re
 
     # 4) Optional primary replay check (if user supplies stages + S0,C,V)
     primary_ok = None
@@ -149,7 +166,7 @@ def verify_bundle_dict(bundle: Dict[str, Any],
         # Re-run to recompute HMASTER and match primary.master
         try:
             master_re = replay_master(S0, C, V, stages)
-            primary_ok = (primary.get("master") == master_re)
+            primary_ok = primary.get("master") == master_re
         except Exception as e:
             primary_ok = False
         report["checks"]["primary_master_replay_match"] = bool(primary_ok)
@@ -165,9 +182,13 @@ def verify_bundle_dict(bundle: Dict[str, Any],
     return report
 
 
-def verify_bundle_file(path: str,
-                       stages: Optional[Iterable[Callable]] = None,
-                       S0: Any = None, C: Dict[str, Any] = None, V: str = None) -> Dict[str, Any]:
+def verify_bundle_file(
+    path: str,
+    stages: Optional[Iterable[Callable]] = None,
+    S0: Any = None,
+    C: Dict[str, Any] = None,
+    V: str = None,
+) -> Dict[str, Any]:
     """Load bundle from file and verify it."""
     with open(path, "r", encoding="utf-8") as f:
         bundle = json.load(f)
@@ -175,6 +196,7 @@ def verify_bundle_file(path: str,
 
 
 # === Phase F: Trace Renderer ===
+
 
 def render_trace_from_primary(primary: Dict[str, Any]) -> str:
     """
@@ -192,11 +214,15 @@ def render_trace_from_primary(primary: Dict[str, Any]) -> str:
     lines.append(f"H0: {meta.get('H0')}")
     lines.append("")
     lines.append("Step | Function | Input -> Output | h_i")
-    lines.append("-----+----------+-----------------+----------------------------------------------------------------")
+    lines.append(
+        "-----+----------+-----------------+----------------------------------------------------------------"
+    )
     steps = primary.get("steps", [])
     stage_hashes = primary.get("stage_hashes", [])
     for i, s in enumerate(steps, start=1):
-        lines.append(f"{i:>4} | {s['fn']:8} | {s['input']} -> {s['output']:6} | {s['fingerprint']}")
+        lines.append(
+            f"{i:>4} | {s['fn']:8} | {s['input']} -> {s['output']:6} | {s['fingerprint']}"
+        )
     lines.append("")
     if stage_hashes:
         concat_preview = "||".join([h[:8] for h in stage_hashes])
@@ -205,4 +231,3 @@ def render_trace_from_primary(primary: Dict[str, Any]) -> str:
         lines.append("Aggregation: (no steps)")
     lines.append(f"HMASTER = {primary.get('master')}")
     return "\n".join(lines)
-

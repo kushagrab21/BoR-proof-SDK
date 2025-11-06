@@ -7,7 +7,8 @@ Command-line interface for BoR-Proof SDK.
 import argparse
 import json
 import sys
-from bor.verify import verify_primary_file, HashMismatchError
+
+from bor.verify import HashMismatchError, verify_primary_file
 
 
 def main():
@@ -19,21 +20,31 @@ def main():
     v.add_argument("--initial", required=True, help="JSON for S0")
     v.add_argument("--config", required=True, help="JSON for C")
     v.add_argument("--version", required=True, help="Version string V")
-    v.add_argument("--stages", nargs="+", required=True,
-                   help="Stage functions as module.fn or module:fn")
+    v.add_argument(
+        "--stages",
+        nargs="+",
+        required=True,
+        help="Stage functions as module.fn or module:fn",
+    )
 
     p = sub.add_parser("persist", help="Save proof and compute P₄")
     p.add_argument("--label", required=True, help="Label for storage")
     p.add_argument("--primary", required=True, help="Path to primary proof JSON")
-    p.add_argument("--root", default=".bor_store", help="Storage directory (default .bor_store)")
+    p.add_argument(
+        "--root", default=".bor_store", help="Storage directory (default .bor_store)"
+    )
     p.add_argument("--backend", choices=["json", "sqlite", "both"], default="both")
 
     pr = sub.add_parser("prove", help="Generate proofs")
-    pr.add_argument("--all", action="store_true", help="Build primary + subproof bundle")
+    pr.add_argument(
+        "--all", action="store_true", help="Build primary + subproof bundle"
+    )
     pr.add_argument("--initial", help="JSON for S0")
     pr.add_argument("--config", help="JSON for C")
     pr.add_argument("--version", help="Version string V")
-    pr.add_argument("--stages", nargs="+", help="Stage functions as module.fn or module:fn")
+    pr.add_argument(
+        "--stages", nargs="+", help="Stage functions as module.fn or module:fn"
+    )
     pr.add_argument("--outdir", default="out", help="Output directory")
 
     vb = sub.add_parser("verify-bundle", help="Verify a Rich Proof Bundle")
@@ -41,18 +52,27 @@ def main():
     vb.add_argument("--initial", help="JSON for S0 (optional)")
     vb.add_argument("--config", help="JSON for C (optional)")
     vb.add_argument("--version", help="Version string V (optional)")
-    vb.add_argument("--stages", nargs="+",
-                    help="Stage functions (optional) as module.fn or module:fn")
+    vb.add_argument(
+        "--stages",
+        nargs="+",
+        help="Stage functions (optional) as module.fn or module:fn",
+    )
 
     sh = sub.add_parser("show", help="Render human-readable views")
     sh.add_argument("--trace", help="Path to primary proof JSON OR bundle JSON")
-    sh.add_argument("--from", dest="source", choices=["primary", "bundle"], default="bundle",
-                    help="Indicate whether --trace points to a primary or a bundle JSON (default bundle)")
+    sh.add_argument(
+        "--from",
+        dest="source",
+        choices=["primary", "bundle"],
+        default="bundle",
+        help="Indicate whether --trace points to a primary or a bundle JSON (default bundle)",
+    )
 
     args = parser.parse_args()
 
     if args.cmd == "verify":
         import json as _json
+
         try:
             S0 = _json.loads(args.initial)
             C = _json.loads(args.config)
@@ -68,10 +88,13 @@ def main():
         except Exception as e:
             print("[BoR P₃] ERROR", e, file=sys.stderr)
             sys.exit(2)
-    
+
     elif args.cmd == "persist":
         import json as _json
-        from bor.store import save_json_proof, save_sqlite_proof, load_json_proof
+
+        from bor.store import (load_json_proof, save_json_proof,
+                               save_sqlite_proof)
+
         try:
             proof = load_json_proof(args.primary)
             reports = {}
@@ -87,12 +110,14 @@ def main():
         except Exception as e:
             print("[BoR P₄] ERROR", e, file=sys.stderr)
             sys.exit(2)
-    
+
     elif args.cmd == "prove" and args.all:
-        import os
         import json as _json
-        from bor.verify import _import_stage
+        import os
+
         from bor.bundle import build_bundle, build_index
+        from bor.verify import _import_stage
+
         try:
             os.makedirs(args.outdir, exist_ok=True)
             S0 = _json.loads(args.initial)
@@ -101,9 +126,17 @@ def main():
             stages = [_import_stage(p) for p in args.stages]
             bundle = build_bundle(S0, C, V, stages)
             idx = build_index(bundle)
-            with open(os.path.join(args.outdir, "rich_proof_bundle.json"), "w", encoding="utf-8") as f:
+            with open(
+                os.path.join(args.outdir, "rich_proof_bundle.json"),
+                "w",
+                encoding="utf-8",
+            ) as f:
                 _json.dump(bundle, f, sort_keys=True)
-            with open(os.path.join(args.outdir, "rich_proof_index.json"), "w", encoding="utf-8") as f:
+            with open(
+                os.path.join(args.outdir, "rich_proof_index.json"),
+                "w",
+                encoding="utf-8",
+            ) as f:
                 _json.dump(idx, f, sort_keys=True)
             print("[BoR RICH] Bundle created")
             print(_json.dumps({"H_RICH": bundle["H_RICH"]}, indent=2, sort_keys=True))
@@ -111,10 +144,13 @@ def main():
         except Exception as e:
             print("[BoR RICH] ERROR", e, file=sys.stderr)
             sys.exit(2)
-    
+
     elif args.cmd == "verify-bundle":
         import json as _json
-        from bor.verify import verify_bundle_file, BundleVerificationError, _import_stage
+
+        from bor.verify import (BundleVerificationError, _import_stage,
+                                verify_bundle_file)
+
         try:
             stages = None
             S0 = C = V = None
@@ -123,7 +159,7 @@ def main():
                 C = _json.loads(args.config)
                 V = args.version
                 stages = [_import_stage(p) for p in args.stages]
-            
+
             rep = verify_bundle_file(args.bundle, stages=stages, S0=S0, C=C, V=V)
             print("[BoR RICH] VERIFIED")
             print(json.dumps(rep, indent=2, sort_keys=True))
@@ -135,11 +171,13 @@ def main():
         except Exception as e:
             print("[BoR RICH] ERROR", e, file=sys.stderr)
             sys.exit(2)
-    
+
     elif args.cmd == "show":
         import json as _json
         import os
+
         from bor.verify import render_trace_from_primary
+
         try:
             path = args.trace
             if not os.path.exists(path):
@@ -164,4 +202,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

@@ -14,8 +14,9 @@ Verifies that:
 import json
 import os
 from pathlib import Path
+
+from bor.bundle import build_bundle, build_index, build_primary
 from bor.decorators import step
-from bor.bundle import build_primary, build_bundle, build_index
 from bor.subproofs import run_DIP, run_DP, run_PEP_bad_signature, run_PoPI
 
 
@@ -42,7 +43,7 @@ def test_dip_determinism():
 def test_dp_divergence():
     """DP should detect changes when inputs are perturbed."""
     S0, C, V = 3, {"offset": 2}, "v1.0"
-    
+
     # Perturb S0
     result = run_DP(S0, C, V, [add, square], perturb={"S0": 999})
     assert result["diverged"] is True
@@ -52,7 +53,7 @@ def test_dp_divergence():
 def test_dp_config_perturbation():
     """DP should handle config perturbations."""
     S0, C, V = 3, {"offset": 2}, "v1.0"
-    
+
     # Add a new key to config
     result = run_DP(S0, C, V, [add, square], perturb={"C": {"extra": 1}})
     # May or may not diverge depending on whether extra key affects computation
@@ -91,20 +92,20 @@ def test_bundle_structure():
     """Bundle should contain all required components."""
     S0, C, V = 3, {"offset": 2}, "v1.0"
     bundle = build_bundle(S0, C, V, [add, square])
-    
+
     # Check top-level keys
     assert "primary" in bundle
     assert "subproofs" in bundle
     assert "subproof_hashes" in bundle
     assert "H_RICH" in bundle
     assert "generated_at" in bundle
-    
+
     # Check subproofs
     assert "DIP" in bundle["subproofs"]
     assert "DP" in bundle["subproofs"]
     assert "PEP" in bundle["subproofs"]
     assert "PoPI" in bundle["subproofs"]
-    
+
     # Check H_RICH
     assert len(bundle["H_RICH"]) == 64
 
@@ -135,7 +136,7 @@ def test_index_structure():
     S0, C, V = 3, {"offset": 2}, "v1.0"
     bundle = build_bundle(S0, C, V, [add, square])
     idx = build_index(bundle)
-    
+
     assert "H_RICH" in idx
     assert "subproof_hashes" in idx
     assert idx["H_RICH"] == bundle["H_RICH"]
@@ -147,7 +148,7 @@ def test_subproof_hashes_match():
     S0, C, V = 3, {"offset": 2}, "v1.0"
     bundle = build_bundle(S0, C, V, [add, square])
     idx = build_index(bundle)
-    
+
     for key in bundle["subproof_hashes"]:
         assert idx["subproof_hashes"][key] == bundle["subproof_hashes"][key]
 
@@ -156,23 +157,25 @@ def test_cli_prove_all_simulation(tmp_path):
     """Simulate CLI prove --all by building and writing files."""
     S0, C, V = 3, {"offset": 2}, "v1.0"
     bundle = build_bundle(S0, C, V, [add, square])
-    
+
     outdir = tmp_path / "out"
     outdir.mkdir()
-    
+
     bundle_path = outdir / "rich_proof_bundle.json"
     index_path = outdir / "rich_proof_index.json"
-    
+
     bundle_path.write_text(json.dumps(bundle, sort_keys=True), encoding="utf-8")
-    index_path.write_text(json.dumps(build_index(bundle), sort_keys=True), encoding="utf-8")
-    
+    index_path.write_text(
+        json.dumps(build_index(bundle), sort_keys=True), encoding="utf-8"
+    )
+
     assert bundle_path.exists()
     assert index_path.exists()
-    
+
     # Verify contents
     loaded_bundle = json.loads(bundle_path.read_text())
     assert loaded_bundle["H_RICH"] == bundle["H_RICH"]
-    
+
     loaded_index = json.loads(index_path.read_text())
     assert loaded_index["H_RICH"] == bundle["H_RICH"]
 
@@ -180,14 +183,13 @@ def test_cli_prove_all_simulation(tmp_path):
 def test_h_rich_determinism():
     """H_RICH should be deterministic for same inputs."""
     S0, C, V = 5, {"offset": 3}, "v2.0"
-    
+
     bundle1 = build_bundle(S0, C, V, [add, square])
     bundle2 = build_bundle(S0, C, V, [add, square])
-    
+
     # Note: H_RICH may differ due to different execution traces (P0 includes timestamp in env)
     # But structure should be consistent
     assert "H_RICH" in bundle1
     assert "H_RICH" in bundle2
     assert len(bundle1["H_RICH"]) == 64
     assert len(bundle2["H_RICH"]) == 64
-

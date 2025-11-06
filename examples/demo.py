@@ -16,4 +16,3 @@ def add(x, C, V):
 def square(x, C, V):
     """Square the state."""
     return x * x
-

@@ -6,15 +6,18 @@ Each step in reasoning emits a fingerprint hi,
 and all fingerprints concatenate into HMASTER.
 """
 
-from dataclasses import dataclass, asdict
-from typing import Any, Callable, List, Dict
 import inspect
-from bor.hash_utils import content_hash, canonical_bytes, env_fingerprint
+from dataclasses import asdict, dataclass
+from typing import Any, Callable, Dict, List
+
 from bor.exceptions import DeterminismError, HashMismatchError
+from bor.hash_utils import canonical_bytes, content_hash, env_fingerprint
+
 
 @dataclass
 class BoRStep:
     """Represents a single deterministic reasoning step."""
+
     fn_name: str
     input_state: Any
     output_state: Any
@@ -33,13 +36,16 @@ class BoRStep:
         self.fingerprint = content_hash(payload)
         return self.fingerprint
 
+
 @dataclass(frozen=True)
 class Proof:
     """Holds complete proof chain: meta, steps, stage_hashes, and HMASTER."""
+
     meta: Dict[str, Any]
     steps: List[Dict[str, Any]]
     stage_hashes: List[str]
     master: str
+
 
 class BoRRun:
     """
@@ -50,6 +56,7 @@ class BoRRun:
         proof = run.finalize()
         run.verify()
     """
+
     def __init__(self, S0: Any, C: Dict, V: str):
         self.S0 = S0
         self.S0_initial = S0  # Keep original S0 for meta
@@ -60,15 +67,12 @@ class BoRRun:
         self.code_version = V  # Backward compatibility
         self.env = env_fingerprint()
         # Compute initialization proof hash P₀
-        self.P0 = content_hash({
-            "S0": self.S0,
-            "C": self.C,
-            "V": self.V,
-            "env": self.env
-        })
+        self.P0 = content_hash(
+            {"S0": self.S0, "C": self.C, "V": self.V, "env": self.env}
+        )
         # Optional console confirmation
         print(f"[BoR P₀] Initialization Proof Hash = {self.P0}")
-        
+
         self.steps: List[BoRStep] = []
         self._final_state = None
         self.proof: Proof | None = None
@@ -83,19 +87,23 @@ class BoRRun:
         try:
             output_state = fn(prev_state, self.config, self.code_version)
         except Exception as e:
-            raise DeterminismError(f"Function {fn.__name__} failed deterministically: {e}")
+            raise DeterminismError(
+                f"Function {fn.__name__} failed deterministically: {e}"
+            )
 
         # Prefer decorator-provided name if present
         fn_name = getattr(fn, "__bor_step_name__", fn.__name__)
-        step = BoRStep(fn_name, prev_state, output_state, self.config, self.code_version)
+        step = BoRStep(
+            fn_name, prev_state, output_state, self.config, self.code_version
+        )
         step.compute_fingerprint()
         self.steps.append(step)
         self._final_state = output_state
-        
+
         # Emit P₁ step-level proof hash
         step_num = len(self.steps)
         print(f"[BoR P₁] Step #{step_num} '{fn_name}' → hᵢ = {step.fingerprint}")
-        
+
         return self
 
     def _stage_hashes(self) -> List[str]:
@@ -115,15 +123,18 @@ class BoRRun:
         HMASTER = content_hash(concat)
 
         # Build canonical primary proof object (P0–P2)
-        step_records = [{
-            "i": i + 1,
-            "fn": s.fn_name,
-            "input": s.input_state,
-            "output": s.output_state,
-            "config": s.config,
-            "version": s.code_version,
-            "fingerprint": s.fingerprint
-        } for i, s in enumerate(self.steps)]
+        step_records = [
+            {
+                "i": i + 1,
+                "fn": s.fn_name,
+                "input": s.input_state,
+                "output": s.output_state,
+                "config": s.config,
+                "version": s.code_version,
+                "fingerprint": s.fingerprint,
+            }
+            for i, s in enumerate(self.steps)
+        ]
 
         meta = {
             "S0": self.S0_initial,
@@ -134,10 +145,7 @@ class BoRRun:
         }
 
         self.proof = Proof(
-            meta=meta,
-            steps=step_records,
-            stage_hashes=stage_hashes,
-            master=HMASTER
+            meta=meta, steps=step_records, stage_hashes=stage_hashes, master=HMASTER
         )
         print(f"[BoR P₂] HMASTER = {HMASTER}")
         return self.proof
@@ -153,7 +161,7 @@ class BoRRun:
             "meta": self.proof.meta,
             "steps": self.proof.steps,
             "stage_hashes": self.proof.stage_hashes,
-            "master": self.proof.master
+            "master": self.proof.master,
         }
 
     def run_steps(self, stage_fns):
@@ -183,4 +191,3 @@ class BoRRun:
             "fingerprints": [s.fingerprint for s in self.steps],
             "HMASTER": self.proof.master if self.proof else None,
         }
-

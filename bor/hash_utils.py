@@ -4,16 +4,18 @@ Module: hash_utils
 Canonical encoding and hashing utilities for deterministic fingerprint generation.
 """
 
-import json
-import hashlib
 import decimal
+import hashlib
+import json
+import os
 import platform
 import sys
-import os
+
 from bor.exceptions import CanonicalizationError
 
 # === Configuration constants ===
 _FLOAT_PRECISION = 12  # digits of precision for float normalization
+
 
 def _normalize_floats(obj):
     """Recursively normalize all floats to fixed precision Decimals."""
@@ -25,6 +27,7 @@ def _normalize_floats(obj):
         return {k: _normalize_floats(v) for k, v in obj.items()}
     else:
         return obj
+
 
 def canonical_bytes(obj) -> bytes:
     """
@@ -46,11 +49,13 @@ def canonical_bytes(obj) -> bytes:
     except (TypeError, ValueError) as e:
         raise CanonicalizationError(f"Failed to canonicalize object: {e}")
 
+
 def content_hash(obj) -> str:
     """
     Compute SHA-256 hex digest of canonical_bytes(obj).
     """
     return hashlib.sha256(canonical_bytes(obj)).hexdigest()
+
 
 def env_fingerprint() -> dict:
     """
@@ -65,4 +70,3 @@ def env_fingerprint() -> dict:
         "cwd": os.getcwd(),
         "hashseed": os.environ.get("PYTHONHASHSEED", "not-set"),
     }
-

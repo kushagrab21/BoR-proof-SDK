@@ -5,13 +5,14 @@ P₄ Persistence Proof: Local persistence layer with integrity verification.
 Two modes: JSON (default) and SQLite (optional).
 """
 
-import json
 import hashlib
+import json
+import os
 import sqlite3
 import time
-import os
 from pathlib import Path
-from typing import List, Dict, Optional, Any
+from typing import Any, Dict, List, Optional
+
 from bor.core import Proof
 
 DEFAULT_DIR = ".bor_store"
@@ -30,7 +31,10 @@ def _sha256_bytes(b: bytes) -> str:
 
 # === P₄ JSON Storage ===
 
-def save_json_proof(label: str, proof: Dict[str, Any], root: str = DEFAULT_DIR) -> Dict[str, Any]:
+
+def save_json_proof(
+    label: str, proof: Dict[str, Any], root: str = DEFAULT_DIR
+) -> Dict[str, Any]:
     """
     Save primary proof JSON (already canonical dict) and compute P₄.
     Returns a record with path and H_store.
@@ -58,12 +62,14 @@ def load_json_proof(path: str) -> Dict[str, Any]:
 
 # === P₄ SQLite Storage ===
 
+
 def init_sqlite(root: str = DEFAULT_DIR) -> str:
     """Initialize SQLite database with schema."""
     _ensure_dir(root)
     db_path = os.path.join(root, DEFAULT_DB)
     with sqlite3.connect(db_path) as conn:
-        conn.execute("""
+        conn.execute(
+            """
         CREATE TABLE IF NOT EXISTS proofs(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           label TEXT,
@@ -72,12 +78,15 @@ def init_sqlite(root: str = DEFAULT_DIR) -> str:
           stage_hashes TEXT NOT NULL,
           master TEXT NOT NULL,
           timestamp INTEGER NOT NULL
-        )""")
+        )"""
+        )
         conn.execute("CREATE INDEX IF NOT EXISTS idx_label ON proofs(label)")
     return db_path
 
 
-def save_sqlite_proof(label: str, proof: Dict[str, Any], root: str = DEFAULT_DIR) -> Dict[str, Any]:
+def save_sqlite_proof(
+    label: str, proof: Dict[str, Any], root: str = DEFAULT_DIR
+) -> Dict[str, Any]:
     """
     Persist proof into SQLite and compute P₄ over a canonical row blob.
     """
@@ -85,12 +94,14 @@ def save_sqlite_proof(label: str, proof: Dict[str, Any], root: str = DEFAULT_DIR
     ts = int(time.time())
     meta = json.dumps(proof["meta"], separators=(",", ":"), sort_keys=True)
     steps = json.dumps(proof["steps"], separators=(",", ":"), sort_keys=True)
-    stage_hashes = json.dumps(proof["stage_hashes"], separators=(",", ":"), sort_keys=True)
+    stage_hashes = json.dumps(
+        proof["stage_hashes"], separators=(",", ":"), sort_keys=True
+    )
     master = proof["master"]
     with sqlite3.connect(db_path) as conn:
         conn.execute(
             "INSERT INTO proofs(label, meta, steps, stage_hashes, master, timestamp) VALUES (?,?,?,?,?,?)",
-            (label, meta, steps, stage_hashes, master, ts)
+            (label, meta, steps, stage_hashes, master, ts),
         )
         rowid = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
         # Canonical row object for H_store
@@ -99,11 +110,19 @@ def save_sqlite_proof(label: str, proof: Dict[str, Any], root: str = DEFAULT_DIR
             "meta": json.loads(meta),
             "steps": json.loads(steps),
             "stage_hashes": json.loads(stage_hashes),
-            "master": master
+            "master": master,
         }
-        row_blob = json.dumps(row_obj, separators=(",", ":"), sort_keys=True).encode("utf-8")
+        row_blob = json.dumps(row_obj, separators=(",", ":"), sort_keys=True).encode(
+            "utf-8"
+        )
         h_store = _sha256_bytes(row_blob + str(ts).encode("utf-8"))
-    return {"label": label, "db_path": db_path, "rowid": rowid, "timestamp": ts, "H_store": h_store}
+    return {
+        "label": label,
+        "db_path": db_path,
+        "rowid": rowid,
+        "timestamp": ts,
+        "H_store": h_store,
+    }
 
 
 def load_sqlite_proof(label: str, root: str = DEFAULT_DIR) -> Optional[Dict[str, Any]]:
@@ -112,7 +131,7 @@ def load_sqlite_proof(label: str, root: str = DEFAULT_DIR) -> Optional[Dict[str,
     with sqlite3.connect(db_path) as conn:
         cur = conn.execute(
             "SELECT meta, steps, stage_hashes, master, timestamp FROM proofs WHERE label=? ORDER BY id DESC LIMIT 1",
-            (label,)
+            (label,),
         )
         row = cur.fetchone()
         if not row:
@@ -127,15 +146,16 @@ def load_sqlite_proof(label: str, root: str = DEFAULT_DIR) -> Optional[Dict[str,
         "steps": steps,
         "stage_hashes": stage_hashes,
         "master": master,
-        "timestamp": ts
+        "timestamp": ts,
     }
 
 
 # === Legacy ProofStore Class (backward compatibility) ===
 
+
 class ProofStore:
     """Legacy class-based interface for backward compatibility."""
-    
+
     def __init__(self, root: str = ".bor_store", use_sqlite: bool = False):
         self.root = Path(root)
         self.use_sqlite = use_sqlite
@@ -154,7 +174,7 @@ class ProofStore:
             "master": proof.master,
             "stage_hashes": proof.stage_hashes,
             "meta": proof.meta,
-            "steps": proof.steps
+            "steps": proof.steps,
         }
         if self.use_sqlite:
             save_sqlite_proof(label, proof_dict, root=str(self.root))
@@ -173,7 +193,7 @@ class ProofStore:
                 meta=data["meta"],
                 steps=data["steps"],
                 stage_hashes=data["stage_hashes"],
-                master=data["master"]
+                master=data["master"],
             )
         else:
             path = self.root / f"{label}.json"
@@ -184,7 +204,7 @@ class ProofStore:
                 meta=data.get("meta", {}),
                 steps=data.get("steps", []),
                 stage_hashes=data["stage_hashes"],
-                master=data["master"]
+                master=data["master"],
             )
 
     def list_proofs(self) -> List[str]:

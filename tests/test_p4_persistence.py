@@ -12,9 +12,11 @@ Verifies that:
 import json
 import os
 from pathlib import Path
+
 from bor.core import BoRRun
 from bor.decorators import step
-from bor.store import save_json_proof, save_sqlite_proof, load_json_proof, load_sqlite_proof
+from bor.store import (load_json_proof, load_sqlite_proof, save_json_proof,
+                       save_sqlite_proof)
 from bor.verify import persistence_equivalence
 
 
@@ -37,7 +39,9 @@ def _make_primary(tmp: Path):
     p = r.finalize()
     primary = r.to_primary_proof()
     path = tmp / "primary.json"
-    path.write_text(json.dumps(primary, separators=(",", ":"), sort_keys=True), encoding="utf-8")
+    path.write_text(
+        json.dumps(primary, separators=(",", ":"), sort_keys=True), encoding="utf-8"
+    )
     return primary, path
 
 
@@ -66,7 +70,9 @@ def test_p4_equivalence_json_vs_sqlite(tmp_path):
     primary, p = _make_primary(tmp_path)
     save_json_proof("demo", primary, root=str(tmp_path))
     save_sqlite_proof("demo", primary, root=str(tmp_path))
-    report = persistence_equivalence(str(tmp_path / "demo.json"), "demo", root=str(tmp_path))
+    report = persistence_equivalence(
+        str(tmp_path / "demo.json"), "demo", root=str(tmp_path)
+    )
     assert report["equal"] is True
     assert report["master_json"] == report["master_sqlite"]
 
@@ -96,11 +102,11 @@ def test_p4_sqlite_rowid_returned(tmp_path):
 def test_p4_timestamp_included(tmp_path):
     """Both backends should include timestamp."""
     primary, p = _make_primary(tmp_path)
-    
+
     rec_json = save_json_proof("t1", primary, root=str(tmp_path))
     assert "timestamp" in rec_json
     assert isinstance(rec_json["timestamp"], int)
-    
+
     rec_sqlite = save_sqlite_proof("t2", primary, root=str(tmp_path))
     assert "timestamp" in rec_sqlite
     assert isinstance(rec_sqlite["timestamp"], int)
@@ -109,12 +115,13 @@ def test_p4_timestamp_included(tmp_path):
 def test_p4_hstore_differs_across_saves(tmp_path):
     """H_store should differ due to timestamp even for same proof."""
     primary, p = _make_primary(tmp_path)
-    
+
     import time
+
     rec1 = save_json_proof("demo1", primary, root=str(tmp_path))
     time.sleep(1.1)  # Ensure different timestamp (int(time.time()) is in seconds)
     rec2 = save_json_proof("demo2", primary, root=str(tmp_path))
-    
+
     # Different H_store due to different timestamps
     assert rec1["H_store"] != rec2["H_store"]
 
@@ -122,7 +129,7 @@ def test_p4_hstore_differs_across_saves(tmp_path):
 def test_p4_complete_proof_preservation(tmp_path):
     """All proof components should be preserved through storage."""
     primary, p = _make_primary(tmp_path)
-    
+
     # JSON round-trip
     save_json_proof("complete", primary, root=str(tmp_path))
     loaded_json = load_json_proof(str(tmp_path / "complete.json"))
@@ -130,7 +137,7 @@ def test_p4_complete_proof_preservation(tmp_path):
     assert loaded_json["steps"] == primary["steps"]
     assert loaded_json["stage_hashes"] == primary["stage_hashes"]
     assert loaded_json["master"] == primary["master"]
-    
+
     # SQLite round-trip
     save_sqlite_proof("complete", primary, root=str(tmp_path))
     loaded_sqlite = load_sqlite_proof("complete", root=str(tmp_path))
@@ -144,9 +151,10 @@ def test_p4_sqlite_missing_label(tmp_path):
     """persistence_equivalence should handle missing SQLite proof."""
     primary, p = _make_primary(tmp_path)
     save_json_proof("only_json", primary, root=str(tmp_path))
-    
+
     # Don't save to SQLite
-    report = persistence_equivalence(str(tmp_path / "only_json.json"), "only_json", root=str(tmp_path))
+    report = persistence_equivalence(
+        str(tmp_path / "only_json.json"), "only_json", root=str(tmp_path)
+    )
     assert report["equal"] is False
     assert report["reason"] == "sqlite_missing"
-

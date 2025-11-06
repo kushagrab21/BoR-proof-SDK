@@ -1,7 +1,8 @@
 """
 Setup script for Blockchain of Reasoning (BoR) SDK v0.1
 """
-from setuptools import setup, find_packages
+
+from setuptools import find_packages, setup
 
 setup(
     name="bor-sdk",
@@ -12,4 +13,3 @@ setup(
     author="Kushagra Bhatnagar",
     license="MIT",
 )
-

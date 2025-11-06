@@ -45,10 +45,10 @@ def test_p1_deterministic_replay():
     """Same inputs must produce identical step hashes."""
     r1 = BoRRun(S0=5, C={"offset": 3}, V="v1.0")
     r1.add_step(add).add_step(square)
-    
+
     r2 = BoRRun(S0=5, C={"offset": 3}, V="v1.0")
     r2.add_step(add).add_step(square)
-    
+
     assert r1.steps[0].fingerprint == r2.steps[0].fingerprint
     assert r1.steps[1].fingerprint == r2.steps[1].fingerprint
 
@@ -57,9 +57,8 @@ def test_p1_config_sensitivity():
     """Changing config must change step hash."""
     r1 = BoRRun(S0=3, C={"offset": 2}, V="v1.0")
     r1.add_step(add)
-    
+
     r2 = BoRRun(S0=3, C={"offset": 5}, V="v1.0")
     r2.add_step(add)
-    
-    assert r1.steps[0].fingerprint != r2.steps[0].fingerprint
 
+    assert r1.steps[0].fingerprint != r2.steps[0].fingerprint

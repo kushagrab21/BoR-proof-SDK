@@ -17,12 +17,14 @@ Purity Requirements:
 - No side effects (I/O, global mutations, randomness)
 """
 
-from typing import Callable, Optional
 import inspect
+from typing import Callable, Optional
+
 from bor.exceptions import DeterminismError
 
 _STEP_NAME_ATTR = "__bor_step_name__"
 _IS_STEP_ATTR = "__bor_is_step__"
+
 
 def _validate_signature(fn: Callable) -> None:
     """
@@ -45,6 +47,7 @@ def _validate_signature(fn: Callable) -> None:
                 f"BoR step `{fn.__name__}` must not use *args/**kwargs in v0.1."
             )
 
+
 def step(fn: Optional[Callable] = None, *, name: Optional[str] = None):
     """
     Usage:
@@ -56,6 +59,7 @@ def step(fn: Optional[Callable] = None, *, name: Optional[str] = None):
 
     Returns the original function, tagged with BoR metadata.
     """
+
     def _decorate(f: Callable) -> Callable:
         _validate_signature(f)
         setattr(f, _IS_STEP_ATTR, True)
@@ -66,4 +70,3 @@ def step(fn: Optional[Callable] = None, *, name: Optional[str] = None):
     if fn is not None and callable(fn):
         return _decorate(fn)
     return _decorate
-

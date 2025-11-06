@@ -5,18 +5,20 @@ Sub-proof implementations: DIP, DP, PEP, PoPI, CCP, CMIP, PP, TRP.
 These provide additional verification layers beyond the primary proof chain.
 """
 
-from typing import Callable, Dict, Any, Iterable, Tuple, List
-import json
-import hashlib
-import time
 import copy
+import hashlib
+import json
 import os
 import tempfile
+import time
+from typing import Any, Callable, Dict, Iterable, List, Tuple
 
 from bor.core import BoRRun
 from bor.decorators import step
+from bor.store import DEFAULT_DIR as _STORE_DIR
+from bor.store import (load_json_proof, load_sqlite_proof, save_json_proof,
+                       save_sqlite_proof)
 from bor.verify import replay_master
-from bor.store import save_json_proof, save_sqlite_proof, load_json_proof, load_sqlite_proof, DEFAULT_DIR as _STORE_DIR
 
 
 def _sha256_minified_json(obj: Dict[str, Any]) -> str:
@@ -27,7 +29,10 @@ def _sha256_minified_json(obj: Dict[str, Any]) -> str:
 
 # === DIP: Deterministic Identity Proof ===
 
-def run_DIP(S0: Any, C: Dict[str, Any], V: str, stages: Iterable[Callable]) -> Dict[str, Any]:
+
+def run_DIP(
+    S0: Any, C: Dict[str, Any], V: str, stages: Iterable[Callable]
+) -> Dict[str, Any]:
     """
     Deterministic Identity Proof: two identical runs → equal master.
     Verifies that the reasoning chain is deterministic.
@@ -47,9 +52,14 @@ def run_DIP(S0: Any, C: Dict[str, Any], V: str, stages: Iterable[Callable]) -> D
 
 # === DP: Divergence Proof ===
 
-def run_DP(S0: Any, C: Dict[str, Any], V: str,
-           stages: Iterable[Callable],
-           perturb: Dict[str, Any]) -> Dict[str, Any]:
+
+def run_DP(
+    S0: Any,
+    C: Dict[str, Any],
+    V: str,
+    stages: Iterable[Callable],
+    perturb: Dict[str, Any],
+) -> Dict[str, Any]:
     """
     Divergence Proof: change exactly one element → different master.
     Verifies that the proof is sensitive to input changes.
@@ -77,21 +87,25 @@ def run_DP(S0: Any, C: Dict[str, Any], V: str,
 
 # === PEP: Purity Enforcement Proof ===
 
+
 def run_PEP_bad_signature() -> Tuple[bool, str]:
     """
     Purity Enforcement Proof: a bad @step signature must be rejected.
     Verifies that the decorator enforces signature constraints.
     """
     try:
+
         @step
         def bad(x, C):  # wrong arity
             return x
+
         return False, "no_error"
     except Exception as e:
         return True, type(e).__name__
 
 
 # === PoPI: Proof-of-Proof Integrity ===
+
 
 def run_PoPI(primary_proof: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -104,7 +118,10 @@ def run_PoPI(primary_proof: Dict[str, Any]) -> Dict[str, Any]:
 
 # === CCP: Canonicalization Consistency Proof ===
 
-def run_CCP(S0: Any, C: Dict[str, Any], V: str, stages: Iterable[Callable]) -> Dict[str, Any]:
+
+def run_CCP(
+    S0: Any, C: Dict[str, Any], V: str, stages: Iterable[Callable]
+) -> Dict[str, Any]:
     """
     Canonicalization Consistency Proof:
     Re-encode semantically identical inputs with different dict orders and show
@@ -121,7 +138,9 @@ def run_CCP(S0: Any, C: Dict[str, Any], V: str, stages: Iterable[Callable]) -> D
     if isinstance(C2, dict):
         # Create a shuffled-order JSON string -> parse back -> dict with same keys, values
         j = json.dumps(C2, sort_keys=False)
-        C2_perm = json.loads(j)  # dict order is irrelevant; canonical encoder should normalize
+        C2_perm = json.loads(
+            j
+        )  # dict order is irrelevant; canonical encoder should normalize
     else:
         C2_perm = C2
 
@@ -135,7 +154,10 @@ def run_CCP(S0: Any, C: Dict[str, Any], V: str, stages: Iterable[Callable]) -> D
 
 # === CMIP: Cross-Module Integrity Proof ===
 
-def run_CMIP(S0: Any, C: Dict[str, Any], V: str, stages: Iterable[Callable]) -> Dict[str, Any]:
+
+def run_CMIP(
+    S0: Any, C: Dict[str, Any], V: str, stages: Iterable[Callable]
+) -> Dict[str, Any]:
     """
     Cross-Module Integrity Proof:
     Compare HMASTER from:
@@ -166,7 +188,10 @@ def run_CMIP(S0: Any, C: Dict[str, Any], V: str, stages: Iterable[Callable]) -> 
 
 # === PP: Persistence Proof Linkage ===
 
-def run_PP(S0: Any, C: Dict[str, Any], V: str, stages: Iterable[Callable]) -> Dict[str, Any]:
+
+def run_PP(
+    S0: Any, C: Dict[str, Any], V: str, stages: Iterable[Callable]
+) -> Dict[str, Any]:
     """
     Persistence Proof linkage:
     Save to JSON and SQLite, return H_store values and equality of masters.
@@ -189,13 +214,20 @@ def run_PP(S0: Any, C: Dict[str, Any], V: str, stages: Iterable[Callable]) -> Di
         "H_store_json": rec_j["H_store"],
         "H_store_sqlite": rec_s["H_store"],
         "master_json": loaded_j.get("master"),
-        "master_sqlite": None if loaded_s is None else loaded_s["master"]
+        "master_sqlite": None if loaded_s is None else loaded_s["master"],
     }
 
 
 # === TRP: Temporal Reproducibility Proof ===
 
-def run_TRP(S0: Any, C: Dict[str, Any], V: str, stages: Iterable[Callable], delay_sec: float = 0.05) -> Dict[str, Any]:
+
+def run_TRP(
+    S0: Any,
+    C: Dict[str, Any],
+    V: str,
+    stages: Iterable[Callable],
+    delay_sec: float = 0.05,
+) -> Dict[str, Any]:
     """
     Temporal Reproducibility Proof:
     Run now and after Δt; HMASTER must be identical.
@@ -213,4 +245,3 @@ def run_TRP(S0: Any, C: Dict[str, Any], V: str, stages: Iterable[Callable], dela
     m2 = r2.finalize().master
 
     return {"equal": m1 == m2, "master_t0": m1, "master_t1": m2}
-
