@@ -406,3 +406,30 @@ BoR-Proof SDK establishes a new baseline for reasoning integrity:
 > **Trust = Deterministic Reproducibility**
 
 Every `[VERIFIED]` message you see is not a subjective approval — it is a **mathematical identity proof** between two complete reasoning universes.
+
+---
+
+### 12.8 Where Function Details Live
+
+Each reasoning function used in a BoR-Proof run (for example `examples.demo:add` and `examples.demo:square`) is **automatically embedded inside the proof artifact itself**.
+
+During execution, each step records:
+
+```json
+{
+  "fn": "add",
+  "input": 7,
+  "output": 11,
+  "config": {"offset": 4},
+  "version": "v1.0",
+  "fingerprint": "ac971c1ddacb80d4c117bc4..."
+}
+```
+
+When verification occurs, these same functions are **re-imported and re-executed** to recompute identical fingerprints.  
+If `HMASTER` remains unchanged, that means — by mathematical necessity — **the same functions produced the same outputs**.
+
+**Therefore:**
+
+- The **README** defines the logical framework
+- The **proof bundle** contains the function-level evidence
