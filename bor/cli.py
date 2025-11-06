@@ -68,6 +68,24 @@ def main():
         help="Indicate whether --trace points to a primary or a bundle JSON (default bundle)",
     )
 
+    rh = sub.add_parser("register-hash", help="Register proof hash for consensus")
+    rh.add_argument(
+        "--bundle",
+        default="out/rich_proof_bundle.json",
+        help="Path to the rich proof bundle",
+    )
+    rh.add_argument(
+        "--registry",
+        default="proof_registry.json",
+        help="Local JSON file to append consensus entries",
+    )
+    rh.add_argument(
+        "--user", help="Optional user or handle name (auto-detected if not provided)"
+    )
+    rh.add_argument(
+        "--label", help="Optional label for this proof record (e.g., 'demo' or 'v1-test')"
+    )
+
     args = parser.parse_args()
 
     if args.cmd == "verify":
@@ -199,6 +217,66 @@ def main():
             sys.exit(0)
         except Exception as e:
             print("[BoR SHOW] ERROR", e, file=sys.stderr)
+            sys.exit(2)
+
+    elif args.cmd == "register-hash":
+        import datetime
+        import getpass
+        import json as _json
+        import os
+        import platform
+
+        try:
+            # Validate bundle existence
+            if not os.path.exists(args.bundle):
+                print(f"[BoR Consensus] Bundle not found: {args.bundle}", file=sys.stderr)
+                sys.exit(1)
+
+            # Load proof hash
+            try:
+                with open(args.bundle, "r", encoding="utf-8") as f:
+                    data = _json.load(f)
+                H_RICH = data.get("H_RICH")
+                if not H_RICH:
+                    raise ValueError("Missing H_RICH in bundle")
+            except Exception as e:
+                print(f"[BoR Consensus] Error reading bundle: {e}", file=sys.stderr)
+                sys.exit(1)
+
+            # Collect environment metadata
+            entry = {
+                "user": args.user or os.getenv("USER", getpass.getuser()),
+                "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z"),
+                "os": platform.platform(),
+                "python": sys.version.split()[0],
+                "sdk_version": "v1.0",
+                "label": args.label or "unlabeled",
+                "hash": H_RICH,
+            }
+
+            # Append to registry
+            registry_data = []
+            if os.path.exists(args.registry):
+                try:
+                    with open(args.registry, "r", encoding="utf-8") as f:
+                        registry_data = _json.load(f)
+                    if not isinstance(registry_data, list):
+                        registry_data = [registry_data]
+                except Exception:
+                    registry_data = []
+
+            registry_data.append(entry)
+            with open(args.registry, "w", encoding="utf-8") as f:
+                _json.dump(registry_data, f, indent=2)
+
+            print(f"[BoR Consensus] Registered proof hash: {H_RICH}")
+            print(f"[BoR Consensus] Metadata written to {args.registry}")
+            print(
+                f"[BoR Consensus] User: {entry['user']}  |  OS: {entry['os']}  |  Python: {entry['python']}"
+            )
+            sys.exit(0)
+        except Exception as e:
+            print(f"[BoR Consensus] ERROR: {e}", file=sys.stderr)
             sys.exit(2)
 
 
