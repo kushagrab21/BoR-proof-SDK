@@ -6,6 +6,33 @@ The SDK provides a command-line interface (CLI) and Python API for generating an
 
 ---
 
+### 🧭 Run Instantly (Google Colab, Jupyter, or Any Python Environment)
+
+You can try **BoR-Proof SDK** instantly — no setup or cloning required.
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/#create=true)
+
+```bash
+# Quickstart in any Python or Colab environment
+pip install bor-sdk
+borp --help
+
+# Example: Generate and verify a deterministic proof
+borp prove --all \
+  --initial '7' \
+  --config '{"offset":4}' \
+  --version 'v1.0' \
+  --stages examples.demo:add examples.demo:square \
+  --outdir out
+
+borp verify-bundle --bundle out/rich_proof_bundle.json
+```
+
+✅ Works seamlessly on **Google Colab**, **Jupyter Notebook**, **VS Code**, or any terminal with Python ≥ 3.9.  
+This demonstrates BoR-Proof's **environment-independent determinism** — identical inputs always yield identical proof hashes (`HMASTER`, `HRICH`).
+
+---
+
 ## 1. Overview: The Proof Chain
 
 Every reasoning run is represented as a 5-layer proof stack:
