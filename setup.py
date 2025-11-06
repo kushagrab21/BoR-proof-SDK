@@ -14,7 +14,7 @@ setup(
     install_requires=[],
     description="BoR-Proof SDK — Deterministic, Replay-Verifiable Proof of Reasoning",
     author="Kushagra Bhatnagar",
-    author_email="contact@qinsightlabs.ai",
+    author_email="bhatnagar.kushagra.m@gmail.com",
     license="MIT",
     python_requires=">=3.9",
 )

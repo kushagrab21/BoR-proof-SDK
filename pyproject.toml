@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "bor-sdk"
 version = "1.0.0"
 description = "BoR-Proof SDK — Deterministic, Replay-Verifiable Proof of Reasoning"
-authors = [{ name = "Kushagra Bhatnagar", email = "contact@qinsightlabs.ai" }]
+authors = [{ name = "Kushagra Bhatnagar", email = "bhatnagar.kushagra.m@gmail.com" }]
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.9"
