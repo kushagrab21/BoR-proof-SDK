@@ -11,8 +11,16 @@ import time
 from typing import Any, Callable, Dict, Iterable
 
 from bor.core import BoRRun
-from bor.subproofs import (run_CCP, run_CMIP, run_DIP, run_DP,
-                           run_PEP_bad_signature, run_PoPI, run_PP, run_TRP)
+from bor.subproofs import (
+    run_CCP,
+    run_CMIP,
+    run_DIP,
+    run_DP,
+    run_PEP_bad_signature,
+    run_PoPI,
+    run_PP,
+    run_TRP,
+)
 
 
 def build_primary(

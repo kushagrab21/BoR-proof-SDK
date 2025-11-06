@@ -16,8 +16,11 @@ import pytest
 
 from bor.bundle import build_bundle
 from bor.decorators import step
-from bor.verify import (BundleVerificationError, render_trace_from_primary,
-                        verify_bundle_dict)
+from bor.verify import (
+    BundleVerificationError,
+    render_trace_from_primary,
+    verify_bundle_dict,
+)
 
 
 @step

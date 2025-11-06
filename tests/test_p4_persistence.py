@@ -15,8 +15,12 @@ from pathlib import Path
 
 from bor.core import BoRRun
 from bor.decorators import step
-from bor.store import (load_json_proof, load_sqlite_proof, save_json_proof,
-                       save_sqlite_proof)
+from bor.store import (
+    load_json_proof,
+    load_sqlite_proof,
+    save_json_proof,
+    save_sqlite_proof,
+)
 from bor.verify import persistence_equivalence
 
 

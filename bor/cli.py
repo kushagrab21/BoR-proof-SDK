@@ -92,8 +92,7 @@ def main():
     elif args.cmd == "persist":
         import json as _json
 
-        from bor.store import (load_json_proof, save_json_proof,
-                               save_sqlite_proof)
+        from bor.store import load_json_proof, save_json_proof, save_sqlite_proof
 
         try:
             proof = load_json_proof(args.primary)
@@ -148,8 +147,11 @@ def main():
     elif args.cmd == "verify-bundle":
         import json as _json
 
-        from bor.verify import (BundleVerificationError, _import_stage,
-                                verify_bundle_file)
+        from bor.verify import (
+            BundleVerificationError,
+            _import_stage,
+            verify_bundle_file,
+        )
 
         try:
             stages = None

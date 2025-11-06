@@ -13,8 +13,7 @@ from pathlib import Path
 
 from bor.core import BoRRun
 from bor.decorators import step
-from bor.verify import (HashMismatchError, replay_master,
-                        verify_primary_proof_dict)
+from bor.verify import HashMismatchError, replay_master, verify_primary_proof_dict
 
 
 @step
