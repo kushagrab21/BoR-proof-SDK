@@ -1,0 +1,214 @@
+# BoR-Proof SDK — Public, Replay-Verifiable Reasoning
+
+**One-click, cryptographically verifiable proofs of reasoning.**  
+Builds on your BoR SDK: P₀–P₄ primary proofs + 8 sub-proofs; bundles them into a single artifact (`rich_proof_bundle.json`) with master commitment **H_RICH**.
+
+## ✨ What you get
+
+- **P₀** Init proof (env + inputs)  
+- **P₁** Step proofs (per-step fingerprints)  
+- **P₂** Master proof (**HMASTER**)  
+- **P₃** Deterministic replay verify  
+- **P₄** Persistence integrity (**H_store**)  
+- **8 Sub-Proofs:** DIP, DP, PEP, PoPI, CCP, CMIP, PP, TRP  
+- **Bundle:** `rich_proof_bundle.json` + `rich_proof_index.json`  
+- **CLI:** `borp prove`, `borp verify`, `borp verify-bundle`, `borp persist`, `borp show`
+
+## 🚀 Quickstart (5 commands)
+
+```bash
+# 0) Install in editable mode
+python -m pip install -e .
+
+# 1) Generate a proof bundle (uses example stages)
+borp prove --all \
+  --initial '7' \
+  --config '{"offset": 4}' \
+  --version 'v1.0' \
+  --stages examples.demo:add examples.demo:square \
+  --outdir out
+
+# 2) Verify bundle fast (structure + digests)
+borp verify-bundle --bundle out/rich_proof_bundle.json
+
+# 3) (Optional) Strong verify — includes replay
+borp verify-bundle --bundle out/rich_proof_bundle.json \
+  --initial '7' --config '{"offset":4}' --version 'v1.0' \
+  --stages examples.demo:add examples.demo:square
+
+# 4) Human-readable trace
+borp show --trace out/rich_proof_bundle.json --from bundle
+```
+
+## 📦 Artifact anatomy
+
+* `primary.master` = **HMASTER** (chain identity)
+* `subproofs/*` → each hashed, collected into **H_RICH**
+* `rich_proof_index.json` = minimal `{H_RICH, subproof_hashes}`
+* `*.json.p4.json` (sidecar) stores `H_store` + timestamp
+
+## 🧪 Tests
+
+```bash
+pytest -q    # 88/88 passing
+```
+
+## 🔐 Determinism & Purity
+
+All steps are pure functions `f(state, C, V) -> state'`.  
+Encoding is canonical JSON (sorted keys, fixed float print, UTF-8).
+
+## 📋 Proof Chain
+
+### Primary Proofs (P₀–P₄)
+
+| Proof | Description | Output |
+|-------|-------------|--------|
+| **P₀** | Initialization | H(S₀, C, V, env) → H0 |
+| **P₁** | Step-level | h₁, h₂, ..., hₙ |
+| **P₂** | Master aggregation | HMASTER = H("P2\|h₁\|...\|hₙ") |
+| **P₃** | Verification | Replay + compare HMASTER |
+| **P₄** | Persistence | H_store = H(bytes \|\| timestamp) |
+
+### Sub-proofs (8 total)
+
+| Sub-proof | Validates |
+|-----------|-----------|
+| **DIP** | Deterministic Identity: identical runs → same HMASTER |
+| **DP** | Divergence: perturbation → different HMASTER |
+| **PEP** | Purity Enforcement: @step rejects invalid signatures |
+| **PoPI** | Proof-of-Proof Integrity: SHA-256(primary JSON) |
+| **CCP** | Canonicalization Consistency: dict order invariance |
+| **CMIP** | Cross-Module Integrity: core/verify/store agree |
+| **PP** | Persistence: JSON + SQLite H_store equivalence |
+| **TRP** | Temporal Reproducibility: time-invariant HMASTER |
+
+**H_RICH** = SHA-256 of sorted concatenation of all sub-proof hashes.
+
+## 🗺️ CLI Commands
+
+### Generate Proof Bundle
+
+```bash
+borp prove --all \
+  --initial '<S0>' \
+  --config '<C_json>' \
+  --version '<V>' \
+  --stages <module:fn1> <module:fn2> ... \
+  --outdir <directory>
+```
+
+Creates `rich_proof_bundle.json` and `rich_proof_index.json`.
+
+### Verify Primary Proof
+
+```bash
+borp verify --primary <file> \
+  --initial '<S0>' \
+  --config '<C_json>' \
+  --version '<V>' \
+  --stages <module:fn1> <module:fn2> ...
+```
+
+Replays reasoning chain and compares HMASTER. Exit: 0=success, 1=mismatch, 2=error.
+
+### Verify Rich Bundle
+
+```bash
+borp verify-bundle --bundle <file> \
+  [--initial '<S0>' --config '<C_json>' --version '<V>' \
+   --stages <module:fn1> <module:fn2> ...]
+```
+
+Validates structure, sub-proof hashes, and H_RICH. Optionally replays primary if stages provided.
+
+### Persist with P₄
+
+```bash
+borp persist --label <label> --primary <file> \
+  --backend <json|sqlite|both> [--root <dir>]
+```
+
+Saves proof with H_store integrity metadata.
+
+### Show Trace
+
+```bash
+borp show --trace <file> --from <primary|bundle>
+```
+
+Renders human-readable step-by-step trace.
+
+## 🏗️ Architecture
+
+```
+bor/
+├── core.py          # BoRRun, BoRStep, Proof (P₀-P₂)
+├── decorators.py    # @step with purity enforcement (P₁)
+├── hash_utils.py    # Canonical encoding + env fingerprint (P₀)
+├── store.py         # JSON/SQLite persistence (P₄)
+├── verify.py        # Replay, verification, bundle check, trace (P₃, Phase F)
+├── subproofs.py     # All 8 sub-proofs (DIP→TRP)
+├── bundle.py        # Bundle builder + index
+└── cli.py           # Complete CLI interface
+
+examples/
+└── demo.py          # Simple demonstration stages
+
+tests/
+├── test_p0_init.py                    # P₀ tests
+├── test_p1_steps.py                   # P₁ tests
+├── test_p2_master.py                  # P₂ tests
+├── test_p3_verify.py                  # P₃ tests
+├── test_p4_persistence.py             # P₄ tests
+├── test_e_subproofs_bundle.py         # E1 sub-proof tests
+├── test_e2_remaining_subproofs.py     # E2 sub-proof tests
+└── test_f_bundle_verify_and_trace.py  # Bundle verification tests
+```
+
+## 🔬 For Verifiers
+
+To independently verify a proof bundle:
+
+```bash
+# 1. Clone repo + install
+git clone <repo> && cd <repo>
+python -m pip install -e .
+
+# 2. Obtain proof bundle (from prover or public storage)
+# bundle: rich_proof_bundle.json
+
+# 3. Fast verify (no code execution)
+borp verify-bundle --bundle rich_proof_bundle.json
+# → Validates H_RICH + all sub-proof hashes
+
+# 4. Strong verify (with replay - requires source code)
+borp verify-bundle --bundle rich_proof_bundle.json \
+  --initial '<S0>' --config '<C>' --version '<V>' \
+  --stages <module:fn> ...
+# → Recomputes HMASTER from scratch
+
+# 5. Inspect reasoning
+borp show --trace rich_proof_bundle.json --from bundle
+```
+
+**No trust in executor required.** The bundle is self-contained and cryptographically verifiable.
+
+## 📖 Documentation
+
+- [CHANGELOG.md](CHANGELOG.md) - Version history
+- [SECURITY.md](SECURITY.md) - Security policy
+- [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
+
+## 🧬 Related
+
+* Base SDK: BOR-SDK (deterministic reasoning substrate)
+* This repo: BoR-Proof SDK (proof generation & verification)
+
+## 📄 License
+
+MIT
+
+## 🙏 Acknowledgments
+
+Built on the Blockchain of Reasoning (BoR) framework for deterministic, verifiable AI reasoning.
