@@ -12,8 +12,36 @@ You can try **BoR-Proof SDK** instantly — no setup or cloning required.
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/#create=true)
 
+```python
+# BoR-Proof SDK Quickstart (Colab / Jupyter)
+
+# 1. Install from PyPI
+!pip install -q bor-sdk
+
+# 2. Check CLI help
+!borp --help
+
+# 3. Generate and verify a deterministic proof
+!borp prove --all \
+  --initial '7' \
+  --config '{"offset": 4}' \
+  --version 'v1.0' \
+  --stages examples.demo:add examples.demo:square \
+  --outdir out
+
+# 4. Verify proof bundle (structural check)
+!borp verify-bundle --bundle out/rich_proof_bundle.json
+
+# 5. (Optional) Register proof node for consensus
+!borp register-hash --user "colab-user" --label "demo-node"
+
+# 6. Inspect the proof registry file
+!cat proof_registry.json
+```
+
+**For terminal/bash environments:**
+
 ```bash
-# Quickstart in any Python or Colab environment
 pip install bor-sdk
 borp --help
 
