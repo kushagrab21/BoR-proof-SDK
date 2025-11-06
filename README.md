@@ -293,32 +293,43 @@ Hence reproducibility is equivalent to equality of master hashes.
 ### 12.3 Conceptual Model: Proof as a Chain of Invariants
 
 ```
-Inputs (S₀, C, V)
-       │
-       ▼
-┌──────────────────────┐
-│ Canonical Encoder    │  → H₀
-│       (P₀)           │
-└──────────┬───────────┘
-           ▼
-    Deterministic
-       Steps (P₁)       → h₁, h₂, ...
-           │
-           ▼
-      Aggregator        → HMASTER
-         (P₂)
-           │
-           ▼
-    Verification        → HMASTER'
-    Replay (P₃)
-           │
-           ▼
-    Persistence/        → H_store
-    Audit (P₄)
-           │
-           ▼
-    Sub-Proofs          → HRICH
-    DIP→TRP
+                    Inputs (S₀, C, V)
+                           │
+                           ▼
+                ┌──────────────────────┐
+                │  Canonical Encoder   │ ──→ H₀
+                │        (P₀)          │
+                └──────────┬───────────┘
+                           │
+                           ▼
+                ┌──────────────────────┐
+                │  Deterministic Steps │ ──→ h₁, h₂, ..., hₙ
+                │        (P₁)          │
+                └──────────┬───────────┘
+                           │
+                           ▼
+                ┌──────────────────────┐
+                │     Aggregator       │ ──→ HMASTER
+                │        (P₂)          │
+                └──────────┬───────────┘
+                           │
+                           ▼
+                ┌──────────────────────┐
+                │ Verification Replay  │ ──→ HMASTER'
+                │        (P₃)          │
+                └──────────┬───────────┘
+                           │
+                           ▼
+                ┌──────────────────────┐
+                │ Persistence / Audit  │ ──→ H_store
+                │        (P₄)          │
+                └──────────┬───────────┘
+                           │
+                           ▼
+                ┌──────────────────────┐
+                │     Sub-Proofs       │ ──→ HRICH
+                │      DIP→TRP         │
+                └──────────────────────┘
 ```
 
 **Figure 1:** Logical flow from inputs to HRICH.
