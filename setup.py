@@ -1,15 +1,20 @@
 """
-Setup script for Blockchain of Reasoning (BoR) SDK v0.1
+Setup script for BoR-Proof SDK v1.0.0
+
+Note: This file is kept for backward compatibility.
+The package is primarily configured via pyproject.toml.
 """
 
 from setuptools import find_packages, setup
 
 setup(
     name="bor-sdk",
-    version="0.1.0",
+    version="1.0.0",
     packages=find_packages(),
     install_requires=[],
-    description="Blockchain of Reasoning (BoR): Deterministic Proof-of-Logic SDK",
+    description="BoR-Proof SDK — Deterministic, Replay-Verifiable Proof of Reasoning",
     author="Kushagra Bhatnagar",
+    author_email="contact@qinsightlabs.ai",
     license="MIT",
+    python_requires=">=3.9",
 )

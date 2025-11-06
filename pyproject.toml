@@ -1,28 +1,43 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "bor-sdk"
-version = "0.1.0"
-description = "Blockchain of Reasoning (BoR): Deterministic, Replay-Verifiable Proof-of-Logic SDK"
+version = "1.0.0"
+description = "BoR-Proof SDK — Deterministic, Replay-Verifiable Proof of Reasoning"
+authors = [{ name = "Kushagra Bhatnagar", email = "contact@qinsightlabs.ai" }]
 readme = "README.md"
-license = { text = "MIT" }
-authors = [{ name = "Kushagra Bhatnagar" }]
+license = "MIT"
 requires-python = ">=3.9"
-keywords = ["deterministic", "blockchain", "reasoning", "verifiability"]
-classifiers = [
-  "Programming Language :: Python :: 3",
-  "License :: OSI Approved :: MIT License",
-  "Operating System :: OS Independent",
-]
 dependencies = []
+keywords = ["deterministic-ai", "reproducibility", "proof", "hashing", "bor", "reasoning", "verification"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
 
 [project.urls]
-Homepage = "https://github.com/kushagra-bhatnagar/bor-sdk"
-Documentation = "https://github.com/kushagra-bhatnagar/bor-sdk#readme"
-Issues = "https://github.com/kushagra-bhatnagar/bor-sdk/issues"
+Homepage = "https://github.com/kushagrab21/BoR-proof-SDK"
+Documentation = "https://github.com/kushagrab21/BoR-proof-SDK#readme"
+Issues = "https://github.com/kushagrab21/BoR-proof-SDK/issues"
+Repository = "https://github.com/kushagrab21/BoR-proof-SDK"
 
 [project.scripts]
 borp = "bor.cli:main"
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.0.0",
+  "black>=23.0.0",
+]
 

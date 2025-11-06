@@ -43,12 +43,21 @@ The hashes of these eight sub-proofs are concatenated and re-hashed to produce *
 
 ## 3. Installation
 
+### Quick Install (Recommended)
+
+```bash
+pip install bor-sdk
+borp --help
+```
+
+### Developer Install (for Contributors)
+
 ```bash
 git clone https://github.com/kushagrab21/BoR-proof-SDK.git
 cd BoR-proof-SDK
 python -m venv .venv
 source .venv/bin/activate      # or .venv\Scripts\activate on Windows
-pip install -e .
+pip install -e ".[dev]"
 borp --help
 ```
 
@@ -456,11 +465,32 @@ If `HMASTER` remains unchanged, that means — by mathematical necessity — **t
 
 If you only want to reproduce the official proof and register your node, you can do it in two commands.
 
+**Option A: Using pip (fastest)**
+
+```bash
+pip install bor-sdk
+
+# Clone repo for examples
+git clone https://github.com/kushagrab21/BoR-proof-SDK.git
+cd BoR-proof-SDK
+
+borp prove --all \
+  --initial '7' \
+  --config '{"offset":4}' \
+  --version 'v1.0' \
+  --stages examples.demo:add examples.demo:square \
+  --outdir out
+
+borp register-hash --user "<your-github-handle>" --label "demo-node"
+```
+
+**Option B: From source (for contributors)**
+
 ```bash
 git clone https://github.com/kushagrab21/BoR-proof-SDK.git
 cd BoR-proof-SDK
 python -m venv .venv && source .venv/bin/activate
-pip install -e .
+pip install -e ".[dev]"
 
 borp prove --all \
   --initial '7' \
