@@ -458,21 +458,37 @@ Adding your proof to the public consensus ledger takes **less than one minute**.
 
 | Step | Action | Time |
 |------|---------|------|
-| 1 | Run `borp prove --all` | 10 s |
-| 2 | Copy your final `HRICH` hash | 1 s |
-| 3 | Paste it into a JSON entry (`proof_manifest.json`) | 10 s |
-| 4 | Append it to `proof_registry.json` or open a GitHub issue | 30 s |
+| 1 | Run `borp prove --all` to generate proof | 10 s |
+| 2 | Run `borp register-hash` to record metadata | 1 s |
+| 3 | Verify your `proof_registry.json` entry | 1 s |
+| 4 | Submit via GitHub PR or issue | 30 s |
 | 5 | Wait for 2+ identical hashes → consensus reached | passive |
 
-That's all — no networking, mining, or special configuration required.
+That's all — **two commands, one file, under a minute**.
+
+No networking protocols, blockchain mining, or complex configuration required.
 
 ---
 
 ### 13.3 Step-by-Step Procedure
 
-#### **Step 1 — Generate a Proof**
+#### **Prerequisites**
 
-Run the following command inside an activated virtual environment:
+Ensure you have installed the SDK in a virtual environment:
+
+```bash
+git clone https://github.com/kushagrab21/BoR-proof-SDK.git
+cd BoR-proof-SDK
+python -m venv .venv
+source .venv/bin/activate      # or .venv\Scripts\activate on Windows
+pip install -e .
+```
+
+---
+
+#### **Step 1 — Generate a Deterministic Proof**
+
+Run the proof generation command with your chosen inputs:
 
 ```bash
 borp prove --all \
@@ -483,36 +499,106 @@ borp prove --all \
   --outdir out
 ```
 
-Your console will end with:
+**What this does:**
+- Creates a complete proof bundle with `HMASTER` and `HRICH`
+- Executes all 8 sub-proofs (DIP, DP, PEP, PoPI, CCP, CMIP, PP, TRP)
+- Saves `out/rich_proof_bundle.json` and `out/rich_proof_index.json`
+
+**Expected output (final lines):**
 
 ```
-[BoR RICH] VERIFIED
-{ "HRICH": "e9ac1524f4a318a3..." }
-```
-
-#### **Step 2 — Record Your Manifest**
-
-Create a small JSON file named `proof_manifest.json`:
-
-```json
+[BoR RICH] Bundle created
 {
-  "user": "your-github-handle",
-  "timestamp": "2025-11-06T12:00Z",
-  "os": "Ubuntu 22.04",
-  "python": "3.11.8",
-  "sdk_version": "v1.0",
-  "hash": "e9ac1524f4a318a3..."
+  "HRICH": "78ead3960f3d4fdfc9bd8acac7dd01b2a5b16c589f8bcdcacfc56a2fb0e985c7"
 }
 ```
 
-#### **Step 3 — Submit to Registry**
+**Time:** ~10 seconds
 
-You can contribute your manifest in either way:
+---
 
-- **Pull Request:** Append your JSON entry to `proof_registry.json` at the repo root.
-- **GitHub Issue:** Create an issue titled `Consensus Submission – <your-handle>` and paste your manifest.
+#### **Step 2 — Register Your Consensus Node**
 
-Each entry acts as one *verifier node* in the reasoning consensus network.
+Automatically record your proof metadata:
+
+```bash
+borp register-hash \
+  --user "your-github-handle" \
+  --label "demo-quickstart"
+```
+
+**What this does:**
+- Extracts `HRICH` from `out/rich_proof_bundle.json` automatically
+- Detects your OS, Python version, timestamp
+- Creates `proof_registry.json` with your entry
+
+**Expected output:**
+
+```
+[BoR Consensus] Registered proof hash: 78ead3960f3d4fdf...
+[BoR Consensus] Metadata written to proof_registry.json
+[BoR Consensus] User: your-github-handle  |  OS: macOS-14.0-...  |  Python: 3.12.2
+```
+
+**Time:** ~1 second
+
+---
+
+#### **Step 3 — Verify Your Registry Entry**
+
+Check the generated file:
+
+```bash
+cat proof_registry.json
+```
+
+**You should see:**
+
+```json
+[
+  {
+    "user": "your-github-handle",
+    "timestamp": "2025-11-06T14:22:47.940056Z",
+    "os": "macOS-14.0-x86_64-i386-64bit",
+    "python": "3.12.2",
+    "sdk_version": "v1.0",
+    "label": "demo-quickstart",
+    "hash": "78ead3960f3d4fdfc9bd8acac7dd01b2a5b16c589f8bcdcacfc56a2fb0e985c7"
+  }
+]
+```
+
+**Time:** ~1 second
+
+---
+
+#### **Step 4 — Submit to Public Registry**
+
+You can contribute your consensus entry in two ways:
+
+**Option A: Pull Request (Recommended)**
+
+1. Fork the repository: https://github.com/kushagrab21/BoR-proof-SDK
+2. Add your `proof_registry.json` entry to the repo's `proof_registry.json`
+3. Create a pull request titled: `Consensus Submission – <your-handle>`
+
+**Option B: GitHub Issue**
+
+1. Create a new issue: https://github.com/kushagrab21/BoR-proof-SDK/issues
+2. Title: `Consensus Submission – <your-handle>`
+3. Paste the contents of your `proof_registry.json` file
+
+**Time:** ~30 seconds
+
+---
+
+#### **Step 5 — Consensus Confirmation (Passive)**
+
+Once **3 or more independent verifiers** produce the same `HRICH`, the consensus epoch is confirmed.
+
+**You're done!** Your entry now acts as one *verifier node* in the reasoning consensus network.
+
+**Total Active Time:** < 1 minute
 
 ---
 
@@ -546,15 +632,27 @@ This marks the **first consensus epoch** — proof that reasoning reproducibilit
 
 ---
 
-### 13.5 Optional Local Helper Command
+### 13.5 Advanced Options
 
-To simplify recording, the CLI may include:
+The `register-hash` command supports additional configuration:
 
 ```bash
-borp register-hash --bundle out/rich_proof_bundle.json
+borp register-hash \
+  --bundle out/rich_proof_bundle.json \
+  --registry custom_registry.json \
+  --user "custom-username" \
+  --label "my-experiment-v2"
 ```
 
-This command automatically appends your metadata to a local `proof_registry.json`, ready for submission.
+**Options:**
+- `--bundle`: Path to proof bundle (default: `out/rich_proof_bundle.json`)
+- `--registry`: Registry file to create/append (default: `proof_registry.json`)
+- `--user`: Override auto-detected username
+- `--label`: Custom label for this proof (default: `unlabeled`)
+
+**Multiple Entries:**
+
+Run `register-hash` multiple times to append additional proof entries to the same registry. Each run adds one verifier node entry.
 
 ---
 
