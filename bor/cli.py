@@ -83,7 +83,8 @@ def main():
         "--user", help="Optional user or handle name (auto-detected if not provided)"
     )
     rh.add_argument(
-        "--label", help="Optional label for this proof record (e.g., 'demo' or 'v1-test')"
+        "--label",
+        help="Optional label for this proof record (e.g., 'demo' or 'v1-test')",
     )
 
     args = parser.parse_args()
@@ -229,7 +230,9 @@ def main():
         try:
             # Validate bundle existence
             if not os.path.exists(args.bundle):
-                print(f"[BoR Consensus] Bundle not found: {args.bundle}", file=sys.stderr)
+                print(
+                    f"[BoR Consensus] Bundle not found: {args.bundle}", file=sys.stderr
+                )
                 sys.exit(1)
 
             # Load proof hash
@@ -246,7 +249,9 @@ def main():
             # Collect environment metadata
             entry = {
                 "user": args.user or os.getenv("USER", getpass.getuser()),
-                "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z"),
+                "timestamp": datetime.datetime.now(datetime.timezone.utc)
+                .isoformat()
+                .replace("+00:00", "Z"),
                 "os": platform.platform(),
                 "python": sys.version.split()[0],
                 "sdk_version": "v1.0",

@@ -190,4 +190,3 @@ def test_register_hash_missing_hrich_fails(tmp_path):
 
     assert result.returncode == 1
     assert "Missing H_RICH" in result.stderr
-
