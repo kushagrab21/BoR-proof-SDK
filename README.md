@@ -176,6 +176,22 @@ This ensures that saved proofs can later be checked for tampering using their `H
 pip install -e .
 ```
 
+> **Note on Anaconda/venv conflicts**  
+> If you see `ModuleNotFoundError: No module named 'bor'`, your shell is using Anaconda's global Python.
+>
+> **Fix:**
+> ```bash
+> conda deactivate
+> source .venv/bin/activate
+> pip install -e .
+> which borp  # should point inside .venv/bin/
+> ```
+> Always run `borp` from the virtual environment, or call
+> ```bash
+> python -m bor.cli --help
+> ```
+> to guarantee correct imports.
+
 ---
 
 ## 8. Independent Verification Checklist
@@ -436,11 +452,37 @@ If `HMASTER` remains unchanged, that means — by mathematical necessity — **t
 
 ---
 
+## 12.9 Quickstart for New Nodes
+
+If you only want to reproduce the official proof and register your node, you can do it in two commands.
+
+```bash
+git clone https://github.com/kushagrab21/BoR-proof-SDK.git
+cd BoR-proof-SDK
+python -m venv .venv && source .venv/bin/activate
+pip install -e .
+
+borp prove --all \
+  --initial '7' \
+  --config '{"offset":4}' \
+  --version 'v1.0' \
+  --stages examples.demo:add examples.demo:square \
+  --outdir out
+
+borp register-hash --user "<your-github-handle>" --label "demo-node"
+```
+
+Check the file `proof_registry.json`; it now contains your node entry.
+Then submit it via pull request or GitHub issue (see Step 2 submission details).
+Average time ≈ 60 seconds.
+
+---
+
 ## 13. Consensus Verification Protocol (v1.0)
 
 **Establishing Public Consensus on Deterministic Reasoning Proofs**
 
-### 13.1 Purpose
+### Step 0 — Purpose of Consensus
 
 The BoR-Proof SDK already guarantees *local determinism*: identical inputs always yield identical proofs.  
 This section extends that guarantee to *public consensus* — multiple independent verifiers reproducing the same proof hash (`HRICH`) and confirming it publicly.  
@@ -452,7 +494,7 @@ Consensus here is epistemic, not social — a collective proof that logic, not o
 
 ---
 
-### 13.2 Quick Summary (for Users)
+### Step 1 — Overview (1-Minute Summary)
 
 Adding your proof to the public consensus ledger takes **less than one minute**.
 
@@ -470,7 +512,7 @@ No networking protocols, blockchain mining, or complex configuration required.
 
 ---
 
-### 13.3 Step-by-Step Procedure
+### Step 2 — Run Your Node
 
 #### **Prerequisites**
 
@@ -602,7 +644,7 @@ Once **3 or more independent verifiers** produce the same `HRICH`, the consensus
 
 ---
 
-### 13.4 Genesis Consensus (First Block)
+### Step 3 — Understand the Genesis Block
 
 The first verifier creates the *genesis entry*:
 
@@ -632,7 +674,7 @@ This marks the **first consensus epoch** — proof that reasoning reproducibilit
 
 ---
 
-### 13.5 Advanced Options
+### Step 4 — Optional CLI Parameters
 
 The `register-hash` command supports additional configuration:
 
@@ -656,7 +698,7 @@ Run `register-hash` multiple times to append additional proof entries to the sam
 
 ---
 
-### 13.6 Interpretation
+### Step 5 — What Your Proof Means
 
 A verified consensus run means:
 
@@ -694,3 +736,14 @@ BoR-Proof consensus transforms determinism into trust:
 > **Trust = Equality across Observers**
 
 When these equalities hold, reasoning itself has reached consensus — the first reproducible proof of logic as a shared invariant.
+
+---
+
+### 13.9 Common Pitfalls
+
+| Issue | Symptom | Fix |
+|-------|----------|-----|
+| Wrong Python interpreter | `ModuleNotFoundError: No module named 'bor'` | Run inside `.venv` |
+| Old `borp` on PATH | `which borp` → `/opt/anaconda3/bin/borp` | Reactivate venv or run `.venv/bin/borp` |
+| No `proof_registry.json` created | Forgot `register-hash` step | Run `borp register-hash --label my-node` |
+| Different H_RICH from others | Changed inputs/config | Use exact demo parameters |
