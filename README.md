@@ -478,6 +478,10 @@ Average time ≈ 60 seconds.
 
 ---
 
+> **Note:** Future versions of BoR-Proof will extend this into a full deterministic reasoning compiler, where each reasoning step is not only hashed but also represented as a canonical intermediate form, allowing reasoning graphs to be recompiled, diffed, and verified like code.
+
+---
+
 ## 13. Consensus Verification Protocol (v1.0)
 
 **Establishing Public Consensus on Deterministic Reasoning Proofs**
