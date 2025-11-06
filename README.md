@@ -433,3 +433,166 @@ If `HMASTER` remains unchanged, that means — by mathematical necessity — **t
 
 - The **README** defines the logical framework
 - The **proof bundle** contains the function-level evidence
+
+---
+
+## 13. Consensus Verification Protocol (v1.0)
+
+**Establishing Public Consensus on Deterministic Reasoning Proofs**
+
+### 13.1 Purpose
+
+The BoR-Proof SDK already guarantees *local determinism*: identical inputs always yield identical proofs.  
+This section extends that guarantee to *public consensus* — multiple independent verifiers reproducing the same proof hash (`HRICH`) and confirming it publicly.  
+In short:
+
+> **If multiple users obtain the same `HRICH`, the reasoning process itself has reached consensus.**
+
+Consensus here is epistemic, not social — a collective proof that logic, not opinion, determines correctness.
+
+---
+
+### 13.2 Quick Summary (for Users)
+
+Adding your proof to the public consensus ledger takes **less than one minute**.
+
+| Step | Action | Time |
+|------|---------|------|
+| 1 | Run `borp prove --all` | 10 s |
+| 2 | Copy your final `HRICH` hash | 1 s |
+| 3 | Paste it into a JSON entry (`proof_manifest.json`) | 10 s |
+| 4 | Append it to `proof_registry.json` or open a GitHub issue | 30 s |
+| 5 | Wait for 2+ identical hashes → consensus reached | passive |
+
+That's all — no networking, mining, or special configuration required.
+
+---
+
+### 13.3 Step-by-Step Procedure
+
+#### **Step 1 — Generate a Proof**
+
+Run the following command inside an activated virtual environment:
+
+```bash
+borp prove --all \
+  --initial '7' \
+  --config '{"offset":4}' \
+  --version 'v1.0' \
+  --stages examples.demo:add examples.demo:square \
+  --outdir out
+```
+
+Your console will end with:
+
+```
+[BoR RICH] VERIFIED
+{ "HRICH": "e9ac1524f4a318a3..." }
+```
+
+#### **Step 2 — Record Your Manifest**
+
+Create a small JSON file named `proof_manifest.json`:
+
+```json
+{
+  "user": "your-github-handle",
+  "timestamp": "2025-11-06T12:00Z",
+  "os": "Ubuntu 22.04",
+  "python": "3.11.8",
+  "sdk_version": "v1.0",
+  "hash": "e9ac1524f4a318a3..."
+}
+```
+
+#### **Step 3 — Submit to Registry**
+
+You can contribute your manifest in either way:
+
+- **Pull Request:** Append your JSON entry to `proof_registry.json` at the repo root.
+- **GitHub Issue:** Create an issue titled `Consensus Submission – <your-handle>` and paste your manifest.
+
+Each entry acts as one *verifier node* in the reasoning consensus network.
+
+---
+
+### 13.4 Genesis Consensus (First Block)
+
+The first verifier creates the *genesis entry*:
+
+```json
+[
+  {
+    "epoch": "2025-11-06",
+    "hash": "e9ac1524f4a318a3...",
+    "verifiers": ["kushagrab21"],
+    "status": "GENESIS_PROOF"
+  }
+]
+```
+
+When two or more additional verifiers independently reproduce the same hash, the entry updates to:
+
+```json
+{
+  "epoch": "2025-11-06",
+  "hash": "e9ac1524f4a318a3...",
+  "verifiers": ["kushagrab21", "alice-node", "bob-node"],
+  "status": "CONSENSUS_CONFIRMED"
+}
+```
+
+This marks the **first consensus epoch** — proof that reasoning reproducibility holds across machines and observers.
+
+---
+
+### 13.5 Optional Local Helper Command
+
+To simplify recording, the CLI may include:
+
+```bash
+borp register-hash --bundle out/rich_proof_bundle.json
+```
+
+This command automatically appends your metadata to a local `proof_registry.json`, ready for submission.
+
+---
+
+### 13.6 Interpretation
+
+A verified consensus run means:
+
+- Every participant's environment produced the same `HRICH`
+- No hidden or nondeterministic variance exists
+- Logical replayability has been independently validated
+
+Mathematically:
+
+```
+HRICH(v₁) = HRICH(v₂) = ... = HRICH(vₙ)
+  ⇒  Collective Proof of Reasoning Identity
+```
+
+Consensus, therefore, is **equality of invariants across observers** — extending blockchain's *data immutability* into *reasoning immutability*.
+
+---
+
+### 13.7 Summary Table
+
+| Artifact | Role | Guarantee |
+|----------|------|-----------|
+| `rich_proof_bundle.json` | Local deterministic proof | Cryptographic identity |
+| `proof_manifest.json` | Verifier metadata | Environment transparency |
+| `proof_registry.json` | Public ledger of submissions | Cross-verifier equality |
+| Consensus Epoch | ≥ 3 identical `HRICH` | Public reasoning consensus |
+
+---
+
+### 13.8 Closing Principle
+
+BoR-Proof consensus transforms determinism into trust:
+
+> **Correctness = Equality of Hashes**  
+> **Trust = Equality across Observers**
+
+When these equalities hold, reasoning itself has reached consensus — the first reproducible proof of logic as a shared invariant.
