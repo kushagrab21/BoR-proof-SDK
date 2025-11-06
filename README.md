@@ -233,6 +233,8 @@ MIT License
 
 When you run any BoR-Proof command, every line corresponds to a layer in the logical proof ledger:
 
+In BoR-Proof, **a reasoning chain is a closed deterministic system whose behavior is fully captured by its cryptographic invariants**.
+
 | Output Prefix | Proof Layer | Interpretation |
 |---------------|-------------|----------------|
 | `[BoR P₀]` | Initialization | System has canonicalized and hashed `(S₀, C, V, env)` → establishes the starting fingerprint |
@@ -240,14 +242,14 @@ When you run any BoR-Proof command, every line corresponds to a layer in the log
 | `[BoR P₂]` | Master Proof | All step fingerprints concatenated and hashed → defines the unique chain identity `HMASTER` |
 | `[BoR P₃]` | Verification | System recomputed `HMASTER'` and compared to stored value → confirms reproducibility |
 | `[BoR P₄]` | Persistence | Proof stored in canonical JSON and SQLite forms; file integrity hashes `H_store` computed |
-| `[BoR RICH]` | Sub-Proof Integrity | Eight higher-order sub-proofs re-hashed to form `H_RICH`, the single immutable commitment for the entire reasoning run |
+| `[BoR RICH]` | Sub-Proof Integrity | Eight higher-order sub-proofs re-hashed to form `HRICH`, the single immutable commitment for the entire reasoning run |
 
 If you see `[BoR RICH] VERIFIED`, it means **every hash, sub-proof, and master digest matched**.  
 
 This is equivalent to a mathematical proof of identity:
 
 ```
-H_MASTER' = H_MASTER  and  H_RICH' = H_RICH
+HMASTER' = HMASTER  and  HRICH' = HRICH
 ```
 
 ---
@@ -261,7 +263,7 @@ BoR-Proof relies on three foundational axioms of deterministic computation:
 Each function `f(S, C, V)` always produces the same output given the same input—no randomness, no hidden state.
 
 ```
-f(S, C, V) = S'  ⟹  H(f, S, C, V) is constant
+f(S, C, V) = S'  ⇒  H(f, S, C, V) is constant
 ```
 
 **2. Cryptographic Hash Collision Resistance**
@@ -270,7 +272,7 @@ The probability that two different inputs produce the same hash is negligible (�
 Thus if two proofs have identical hashes, they are indistinguishable at the bit level.
 
 ```
-H(x) = H(y)  ⟹  x = y  (with overwhelming probability)
+H(x) = H(y)  ⇒  x = y  (with overwhelming probability)
 ```
 
 **3. Deterministic Composition**
@@ -278,7 +280,7 @@ H(x) = H(y)  ⟹  x = y  (with overwhelming probability)
 The master proof is built by hashing hashes in sequence:
 
 ```
-H_MASTER = H(h₁ || h₂ || ... || hₙ)
+HMASTER = H(h₁ || h₂ || ... || hₙ)
 ```
 
 Any change in any step (even one bit) alters the aggregate hash entirely.  
@@ -303,11 +305,11 @@ Inputs (S₀, C, V)
        Steps (P₁)       → h₁, h₂, ...
            │
            ▼
-      Aggregator        → H_MASTER
+      Aggregator        → HMASTER
          (P₂)
            │
            ▼
-    Verification        → H_MASTER'
+    Verification        → HMASTER'
     Replay (P₃)
            │
            ▼
@@ -315,9 +317,11 @@ Inputs (S₀, C, V)
     Audit (P₄)
            │
            ▼
-    Sub-Proofs          → H_RICH
+    Sub-Proofs          → HRICH
     DIP→TRP
 ```
+
+**Figure 1:** Logical flow from inputs to HRICH.
 
 Every arrow represents a **deterministic and hash-preserving transformation**.  
 Therefore, identical arrows (executions) always produce identical end-states.
@@ -331,8 +335,8 @@ Therefore, identical arrows (executions) always produce identical end-states.
 | **Determinism** | `f(S, C, V) = S'` is pure | Repeatable computation |
 | **Canonicalization** | JSON sorted, fixed precision | Platform-independent results |
 | **Hash Integrity** | `H(x) = SHA256(x)` | Bit-level tamper detection |
-| **Chain Aggregation** | `H_MASTER = H(h₁ ‖ ... ‖ hₙ)` | Global reasoning identity |
-| **Rich Proof Integrity** | `H_RICH = H(H(DIP), ..., H(TRP))` | Compound integrity across all meta-proofs |
+| **Chain Aggregation** | `HMASTER = H(h₁ ‖ ... ‖ hₙ)` | Global reasoning identity |
+| **Rich Proof Integrity** | `HRICH = H(H(DIP), ..., H(TRP))` | Compound integrity across all meta-proofs |
 
 **Conclusion:** Proof validity is grounded in mathematics, not authority.  
 Verification is a direct comparison between observed and expected invariants — a **proof of equality** rather than an **assertion of trust**.
@@ -358,7 +362,7 @@ Verification is a direct comparison between observed and expected invariants —
 
 - `HMASTER` identifies the reasoning chain uniquely
 - Matching `primary_master_replay_match` proves that the reasoning logic can be replayed exactly
-- `H_RICH_match` ensures every sub-proof (DIP→TRP) agrees with stored commitments
+- `HRICH_match` ensures every sub-proof (DIP→TRP) agrees with stored commitments
 - Together, they constitute **a cryptographic certificate of logical identity**
 
 ---
