@@ -63,7 +63,7 @@ This demonstrates BoR-Proof's **environment-independent determinism** — identi
 
 ## 1. Overview: The Proof Chain
 
-Every reasoning run is represented as a 5-layer proof stack:
+Every reasoning run is represented as a **6-layer proof stack** with continuous invariant validation:
 
 | Layer | Purpose | Conceptual Guarantee |
 |-------|----------|---------------------|
@@ -72,8 +72,9 @@ Every reasoning run is represented as a 5-layer proof stack:
 | **P₂ — Master Proof** | Aggregates all step hashes | Defines the identity of the reasoning chain (`HMASTER`) |
 | **P₃ — Verification** | Replays and compares results | Proves reproducibility across time and machines |
 | **P₄ — Persistence** | Hashes stored proof files | Detects any tampering in saved data (`H_store`) |
+| **P₅ — Meta-Layer** | Distributed consensus & self-audit | Multi-verifier agreement & automated drift detection |
 
-Together they form a cryptographically closed reasoning ledger.
+Together they form a cryptographically closed reasoning ledger with **deterministic invariant checking** at every layer.
 
 ---
 
@@ -110,17 +111,63 @@ borp --help
 ```bash
 git clone https://github.com/kushagrab21/BoR-proof-SDK.git
 cd BoR-proof-SDK
+make setup              # Creates venv, installs deps
+source .venv/bin/activate
+borp --help
+```
+
+**Or manually:**
+
+```bash
+git clone https://github.com/kushagrab21/BoR-proof-SDK.git
+cd BoR-proof-SDK
 python -m venv .venv
 source .venv/bin/activate      # or .venv\Scripts\activate on Windows
 pip install -e ".[dev]"
+pre-commit install             # Enable pre-commit hooks
 borp --help
 ```
 
 ---
 
-## 4. Generating and Verifying Proofs (from First Principles)
+## 4. Quick Start for Developers
 
-### 4.1 Generate a Proof (P₀–P₄ + Sub-Proofs)
+The SDK includes **Makefile targets** for common workflows:
+
+```bash
+make setup          # Install dependencies
+make demo           # Generate + verify example proof
+make test           # Run test suite
+make lint           # Check code quality
+make fmt            # Auto-format code
+make verify-release # Full pre-release verification
+make manual-verify  # Visual bottom-up validation
+make help           # Show all commands
+```
+
+**Fast iteration workflow:**
+
+```bash
+make demo           # Generate proof
+make verify         # Verify bundle
+make audit          # Self-audit last 5 bundles
+make consensus      # Update consensus ledger
+```
+
+**Or use the developer CLI:**
+
+```bash
+python dx.py prove
+python dx.py verify
+python dx.py audit --n 5
+python dx.py consensus
+```
+
+---
+
+## 5. Generating and Verifying Proofs (from First Principles)
+
+### 5.1 Generate a Proof (P₀–P₅ + Sub-Proofs)
 
 Each command below corresponds directly to one logical assertion:
 
@@ -143,7 +190,7 @@ This command:
 
 ---
 
-### 4.2 Verify a Proof (Fast Structural Check)
+### 5.2 Verify a Proof (Fast Structural Check)
 
 Checks the cryptographic integrity of the bundle without replaying computations:
 
@@ -155,7 +202,7 @@ This recomputes sub-proof hashes and verifies that the stored `H_RICH` matches t
 
 ---
 
-### 4.3 Verify with Replay (Strong Check)
+### 5.3 Verify with Replay (Strong Check)
 
 Fully re-executes the reasoning steps and recomputes `HMASTER`:
 
@@ -169,7 +216,7 @@ If the recomputed `HMASTER` equals the stored value, the reasoning process is pr
 
 ---
 
-### 4.4 Show the Proof Trace
+### 5.4 Show the Proof Trace
 
 Displays the reasoning sequence in plain text:
 
@@ -181,7 +228,7 @@ Each line shows function, input, output, and hash — allowing step-by-step audi
 
 ---
 
-### 4.5 Persist Proofs (P₄ Storage Integrity)
+### 5.5 Persist Proofs (P₄ Storage Integrity)
 
 Stores and audits proofs across JSON and SQLite backends:
 
@@ -191,9 +238,36 @@ borp persist --label demo --primary out/primary.json --backend both
 
 This ensures that saved proofs can later be checked for tampering using their `H_store` hashes.
 
+### 5.6 Evaluate Invariant (Continuous Verification)
+
+Check that all proof layers satisfy the **BoR invariant** (determinism guarantee):
+
+```bash
+python evaluate_invariant.py
+```
+
+**Output:**
+
+```
+[BoR-Invariant] VERIFIED
+```
+
+**Advanced invariant checks:**
+
+```bash
+# Check distributed consensus (≥3 identical H_RICH)
+python evaluate_invariant.py --consensus-ledger
+
+# Self-audit last 5 bundles for drift
+python evaluate_invariant.py --self-audit 5
+
+# Print comprehensive summary
+python evaluate_invariant.py --summary
+```
+
 ---
 
-## 5. Example Output
+## 6. Example Output
 
 ```
 [BoR P₀] Initialization Proof Hash = ...
@@ -212,7 +286,69 @@ This ensures that saved proofs can later be checked for tampering using their `H
 
 ---
 
-## 6. Proof Validation Matrix
+## 7. Invariant Framework & P₅ Meta-Layer
+
+The SDK includes a **Deterministic Reasoning Compiler** that validates the core invariant:
+
+> **Given identical canonical inputs and environment, the system must always yield identical outputs, hashes, and proofs.**
+
+### 7.1 Invariant Hooks (Automatic)
+
+The framework integrates with P₀–P₄ automatically via hooks:
+
+| Hook | Layer | Purpose |
+|------|-------|---------|
+| `pre_run_hook` | P₀ | Capture environment + config hashes before execution |
+| `transform_hook` | P₁ | Wrap step functions for referential transparency |
+| `post_run_hook` | P₁, P₃ | Verify determinism after each step |
+| `register_proof_hook` | P₂, P₄ | Compare stored vs recomputed proof hashes |
+| `drift_check_hook` | P₂, P₃ | Detect discrepancies between runs |
+
+All hooks are **non-intrusive** — they observe but never modify core behavior.
+
+### 7.2 P₅ Meta-Layer Features
+
+**Distributed Consensus:**
+
+```bash
+python evaluate_invariant.py --consensus-ledger
+```
+
+Generates `consensus_ledger.json` showing epochs where ≥3 verifiers agree on `H_RICH`.
+
+```json
+{
+  "epoch": "2025-11-08",
+  "hash": "e9ac1524...",
+  "verifiers": ["alice", "bob", "charlie"],
+  "count": 3,
+  "status": "CONSENSUS_CONFIRMED"
+}
+```
+
+**Self-Audit:**
+
+```bash
+python evaluate_invariant.py --self-audit 10
+```
+
+Replays the last 10 proof bundles and reports any drift:
+
+```
+[BoR-SelfAudit] OK  checked=10  verified=10  drift=0
+```
+
+### 7.3 State Tracking
+
+All invariant checks are logged to:
+- `state.json` — Sequential log of all proof layer events
+- `metrics.json` — Key-value metrics (hashes, drift flags)
+- `consensus_ledger.json` — Multi-verifier consensus epochs
+- `proof_registry.json` — Registry of all generated proofs
+
+---
+
+## 8. Proof Validation Matrix
 
 | Command | Proof Layer | Guarantee |
 |---------|-------------|-----------|
@@ -220,11 +356,136 @@ This ensures that saved proofs can later be checked for tampering using their `H
 | `borp verify-bundle` | P₃ | Validates proof structure and digest integrity |
 | `borp verify-bundle ... --stages` | P₃ (Replay) | Confirms computational equivalence of reasoning |
 | `borp persist` | P₄ | Confirms stored proof authenticity |
+| `evaluate_invariant.py` | P₀–P₄ | Verifies all layers satisfy BoR invariant |
+| `evaluate_invariant.py --consensus-ledger` | P₅ | Builds distributed consensus epochs |
+| `evaluate_invariant.py --self-audit N` | P₅ | Replays last N bundles, detects drift |
 | `borp show --trace` | — | Renders human-readable logical sequence |
 
 ---
 
-## 7. Troubleshooting
+## 9. Release Verification
+
+Before publishing a new version, run comprehensive verification:
+
+### Automated Verification (Quiet)
+
+```bash
+make verify-release
+```
+
+This runs:
+1. Clean old builds
+2. Build package (`python -m build`)
+3. Validate metadata (`twine check`)
+4. Compute SHA256 checksums
+5. Fresh install in temp venv
+6. Run deterministic proof test
+7. Evaluate invariant + self-audit
+8. Clean up
+
+**Output:**
+
+```
+✅ Manual pre-release verification complete!
+```
+
+### Manual Visual Verification (Verbose)
+
+```bash
+make manual-verify
+```
+
+Shows **all output** from every stage — perfect for final visual confirmation:
+
+```
+==============================================
+🔁  BoR-Proof SDK — Full Manual Verification
+==============================================
+
+🧹  Cleaning previous builds...
+📦  Current git tag + status: v1.0.0
+🚧  Building package...
+🧩  Validating package metadata with twine...
+🔐  SHA256 Checksums for artifacts...
+🧪  Installing wheel into temporary venv...
+🔍  Checking CLI help output...
+⚙️  Running deterministic proof generation...
+🔎  Evaluating invariant and self-audit...
+✅  All manual verification steps completed.
+```
+
+**Use cases:**
+- `make verify-release` → automated CI checks
+- `make manual-verify` → visual confirmation before tagging
+
+---
+
+## 10. Developer Workflow & DevEx
+
+### Pre-commit Hooks
+
+The SDK uses `pre-commit` for automatic code quality:
+
+```bash
+pre-commit install
+```
+
+This enables:
+- **black** — Auto-formatting
+- **ruff** — Linting
+- **isort** — Import sorting
+
+Hooks run automatically on `git commit`. To run manually:
+
+```bash
+pre-commit run --all-files
+```
+
+### Makefile Targets
+
+```bash
+make setup          # Create venv, install deps
+make prove          # Generate example proof
+make demo           # prove + verify in one command
+make verify         # Verify bundle
+make persist        # Test persistence
+make audit          # Self-audit last 5 bundles
+make consensus      # Update consensus ledger
+make test           # Run pytest
+make lint           # ruff + black + isort checks
+make fmt            # Auto-format all code
+make check          # lint + test
+make ci             # Full CI workflow
+make verify-release # Pre-release automation
+make manual-verify  # Visual bottom-up verification
+make clean          # Remove generated files
+make help           # Show all commands
+```
+
+### Developer CLI (`dx.py`)
+
+Quick access to common commands:
+
+```bash
+python dx.py prove
+python dx.py verify
+python dx.py persist
+python dx.py audit --n 5
+python dx.py consensus
+```
+
+### CI/CD
+
+GitHub Actions runs automatically on PRs and pushes to `main`:
+- Linting (ruff, black, isort)
+- Testing (pytest)
+- Coverage reporting
+
+See `.github/workflows/ci.yml` for details.
+
+---
+
+## 11. Troubleshooting
 
 **Error:** `ModuleNotFoundError: No module named 'bor'`  
 → The global Python PATH is being used. Run CLI via the virtual environment:
@@ -258,7 +519,7 @@ pip install -e .
 
 ---
 
-## 8. Independent Verification Checklist
+## 12. Independent Verification Checklist
 
 1. Clone the repository and install dependencies.
 2. Run `pytest -q` → expect all 88 tests to pass.
@@ -268,7 +529,7 @@ pip install -e .
 
 ---
 
-## 9. Citation
+## 13. Citation
 
 ```bibtex
 @software{kushagra_bor_proof_sdk,
@@ -281,7 +542,7 @@ pip install -e .
 
 ---
 
-## 10. Architecture
+## 14. Architecture
 
 ```
 bor/
@@ -294,22 +555,43 @@ bor/
 ├── bundle.py        # Bundle builder and index generator
 └── cli.py           # Unified CLI interface
 
+src/
+├── bor_core/        # Invariant framework
+│   ├── init_hooks.py   # Pre/post/transform/register/drift hooks
+│   ├── registry.py     # State and metric logging
+│   ├── env_utils.py    # Environment hash capture
+│   └── hooks.py        # Hook re-exports
+├── bor_consensus/   # P₅ meta-layer
+│   ├── ledger.py       # Distributed consensus epochs
+│   └── self_audit.py   # Automated bundle replay
+└── bor_utils/       # Utilities
+    └── djson.py        # Deterministic JSON serialization
+
 examples/
 └── demo.py          # Demonstration stages
+
+Root:
+├── evaluate_invariant.py   # Invariant evaluation CLI
+├── consensus_tools.py      # Consensus + audit wrapper
+├── dx.py                   # Developer CLI
+├── verify_release.sh       # Pre-release automation
+├── manual_test_verifier.sh # Visual verification
+├── Makefile                # Developer workflow
+└── .pre-commit-config.yaml # Code quality hooks
 ```
 
 ---
 
-## 11. License
+## 15. License
 
 MIT License  
 © 2025 Kushagra Bhatnagar. All rights reserved.
 
 ---
 
-## 12. Understanding the Results: A First-Principled Explanation
+## 16. Understanding the Results: A First-Principled Explanation
 
-### 12.1 How to Read the Verification Output
+### 16.1 How to Read the Verification Output
 
 When you run any BoR-Proof command, every line corresponds to a layer in the logical proof ledger:
 
@@ -322,7 +604,11 @@ In BoR-Proof, **a reasoning chain is a closed deterministic system whose behavio
 | `[BoR P₂]` | Master Proof | All step fingerprints concatenated and hashed → defines the unique chain identity `HMASTER` |
 | `[BoR P₃]` | Verification | System recomputed `HMASTER'` and compared to stored value → confirms reproducibility |
 | `[BoR P₄]` | Persistence | Proof stored in canonical JSON and SQLite forms; file integrity hashes `H_store` computed |
+| `[BoR P₅]` | Meta-Layer | Distributed consensus and self-audit validation |
 | `[BoR RICH]` | Sub-Proof Integrity | Eight higher-order sub-proofs re-hashed to form `HRICH`, the single immutable commitment for the entire reasoning run |
+| `[BoR-Invariant]` | Invariant Check | Continuous validation that determinism holds across all layers |
+| `[BoR-Consensus]` | Consensus | Multi-verifier agreement confirmation |
+| `[BoR-SelfAudit]` | Self-Audit | Automated replay of historical bundles |
 
 If you see `[BoR RICH] VERIFIED`, it means **every hash, sub-proof, and master digest matched**.  
 
@@ -334,7 +620,7 @@ HMASTER' = HMASTER  and  HRICH' = HRICH
 
 ---
 
-### 12.2 Why These Results Hold Mathematically
+### 16.2 Why These Results Hold Mathematically
 
 BoR-Proof relies on three foundational axioms of deterministic computation:
 
@@ -370,7 +656,7 @@ Hence reproducibility is equivalent to equality of master hashes.
 
 ---
 
-### 12.3 Conceptual Model: Proof as a Chain of Invariants
+### 16.3 Conceptual Model: Proof as a Chain of Invariants
 
 ```
                     Inputs (S₀, C, V)
@@ -409,6 +695,18 @@ Hence reproducibility is equivalent to equality of master hashes.
                 ┌──────────────────────┐
                 │     Sub-Proofs       │ ──→ HRICH
                 │      DIP→TRP         │
+                └──────────┬───────────┘
+                           │
+                           ▼
+                ┌──────────────────────┐
+                │ Invariant Framework  │ ──→ [VERIFIED]
+                │     (continuous)     │
+                └──────────┬───────────┘
+                           │
+                           ▼
+                ┌──────────────────────┐
+                │ P₅ Meta-Layer        │ ──→ Consensus + Audit
+                │ (Consensus/Audit)    │
                 └──────────────────────┘
 ```
 
@@ -419,7 +717,7 @@ Therefore, identical arrows (executions) always produce identical end-states.
 
 ---
 
-### 12.4 Mathematical Summary
+### 16.4 Mathematical Summary
 
 | Property | Formal Statement | Consequence |
 |----------|------------------|-------------|
@@ -434,7 +732,7 @@ Verification is a direct comparison between observed and expected invariants —
 
 ---
 
-### 12.5 Interpreting a Verified Proof (Example)
+### 16.5 Interpreting a Verified Proof (Example)
 
 ```
 [BoR P₂] HMASTER = dde71a3e4391...
@@ -458,7 +756,7 @@ Verification is a direct comparison between observed and expected invariants —
 
 ---
 
-### 12.6 Why Integrity Matters Beyond Code
+### 16.6 Why Integrity Matters Beyond Code
 
 **1. Scientific Reproducibility**
 
@@ -478,7 +776,7 @@ Trust migrates from *who* computed to *what* was computed — a move from belief
 
 ---
 
-### 12.7 In Essence
+### 16.7 In Essence
 
 BoR-Proof SDK establishes a new baseline for reasoning integrity:
 
@@ -489,7 +787,7 @@ Every `[VERIFIED]` message you see is not a subjective approval — it is a **ma
 
 ---
 
-### 12.8 Where Function Details Live
+### 16.8 Where Function Details Live
 
 Each reasoning function used in a BoR-Proof run (for example `examples.demo:add` and `examples.demo:square`) is **automatically embedded inside the proof artifact itself**.
 
@@ -516,7 +814,7 @@ If `HMASTER` remains unchanged, that means — by mathematical necessity — **t
 
 ---
 
-## 12.9 Quickstart for New Nodes
+## 16.9 Quickstart for New Nodes
 
 If you only want to reproduce the official proof and register your node, you can do it in two commands.
 
@@ -567,7 +865,7 @@ Average time ≈ 60 seconds.
 
 ---
 
-## 13. Consensus Verification Protocol (v1.0)
+## 17. Consensus Verification Protocol (v1.0)
 
 **Establishing Public Consensus on Deterministic Reasoning Proofs**
 
@@ -806,7 +1104,7 @@ Consensus, therefore, is **equality of invariants across observers** — extendi
 
 ---
 
-### 13.7 Summary Table
+### 17.7 Summary Table
 
 | Artifact | Role | Guarantee |
 |----------|------|-----------|
@@ -817,7 +1115,7 @@ Consensus, therefore, is **equality of invariants across observers** — extendi
 
 ---
 
-### 13.8 Closing Principle
+### 17.8 Closing Principle
 
 BoR-Proof consensus transforms determinism into trust:
 
@@ -828,7 +1126,7 @@ When these equalities hold, reasoning itself has reached consensus — the first
 
 ---
 
-### 13.9 Common Pitfalls
+### 17.9 Common Pitfalls
 
 | Issue | Symptom | Fix |
 |-------|----------|-----|

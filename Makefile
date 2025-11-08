@@ -1,4 +1,4 @@
-.PHONY: setup prove demo verify persist audit consensus test lint fmt check ci clean verify-release help
+.PHONY: setup prove demo verify persist audit consensus test lint fmt check ci clean verify-release manual-verify help
 
 help:
 	@echo "BoR-Proof SDK - Developer Commands"
@@ -26,6 +26,7 @@ help:
 	@echo ""
 	@echo "Release:"
 	@echo "  make verify-release  Run pre-release verification"
+	@echo "  make manual-verify   Full manual test with all output"
 
 setup:
 	python -m pip install --upgrade pip
@@ -77,4 +78,7 @@ clean:
 
 verify-release:
 	@bash verify_release.sh
+
+manual-verify:
+	@bash manual_test_verifier.sh
 
