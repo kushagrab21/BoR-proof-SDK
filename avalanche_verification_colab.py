@@ -8,7 +8,7 @@
 # Install dependencies
 !pip install -q bor-sdk==1.0.0 matplotlib numpy
 
-import json, hashlib, numpy as np, matplotlib.pyplot as plt
+import os, json, hashlib, numpy as np, matplotlib.pyplot as plt
 
 # ----------------------------------------------------------
 # 1️⃣  Run official proof
@@ -46,6 +46,9 @@ def square(x, C, V):
 """)
 
 print("=== 🧩 Running Modified Proof ===")
+# Set PYTHONPATH to include current directory so demo_modified can be imported
+os.environ['PYTHONPATH'] = os.getcwd() + os.pathsep + os.environ.get('PYTHONPATH', '')
+
 !borp prove --all \
   --initial '7' \
   --config '{"offset":4}' \
