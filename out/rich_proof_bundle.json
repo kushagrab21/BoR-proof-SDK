@@ -1,1 +1,109 @@
-{"H_RICH": "6e7d24ac2c7badce7294531256fd3d5225b55d901584f93c2166fef0266ffed3", "generated_at": "2025-11-06T12:06:16Z", "primary": {"master": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b", "meta": {"C": {"offset": 4}, "H0": "6dd1a278abdb3a35586c244c03f6781d42b7a203223cf60918338f310ac08cd6", "S0": 7, "V": "v1.0", "env": {"arch": "x86_64", "cwd": "/Users/kaku/Desktop/BoR_SDK_Proof/BoR-proof-SDK/BOR-SDK", "hashseed": "0", "os": "Darwin", "python": "3.12.2", "release": "23.0.0"}}, "stage_hashes": ["ac971c1ddacb80d4c117bc4eea2fcb49cfc4af61c1e441be88403ba061f8d60b", "1862bc99cabe4c467216a642394b4b488d0a255526b66b80d369d4966f28e9f1"], "steps": [{"config": {"offset": 4}, "fingerprint": "ac971c1ddacb80d4c117bc4eea2fcb49cfc4af61c1e441be88403ba061f8d60b", "fn": "add", "i": 1, "input": 7, "output": 11, "version": "v1.0"}, {"config": {"offset": 4}, "fingerprint": "1862bc99cabe4c467216a642394b4b488d0a255526b66b80d369d4966f28e9f1", "fn": "square", "i": 2, "input": 11, "output": 121, "version": "v1.0"}]}, "subproof_hashes": {"CCP": "2c49bebde4f03574db5154e31fdc8cddcbeec42d792143c7290c5da519cbb946", "CMIP": "4d5c3e9ad6903db3027287c81f691da32f3f0fcfcf0c61eabcff792d58453761", "DIP": "18a52759146deabbe9052f4df6f0d3eae2d294b84fd414017227e04b2556d206", "DP": "4ac483ec17f95f0ac8f6775538b0d56722ee1f9236e5f942911dbbcbe3a32d87", "PEP": "c0e4d78eceb7364394567f5d7ec9479d8a35b6abcaf03db0a709f2505918bceb", "PP": "0e6f83f9118532aeb02e04d1b5fa90a04b80157618189418281b9da1dbbdf6b6", "PoPI": "c039db203550678c1f706b0db651c8f1fc3be5a53a3faba27eeb37d065c6eb92", "TRP": "6ad6a0714581472871e7e7814bad3d3153d390c2790fa2097e206e0283452f7f"}, "subproofs": {"CCP": {"equal": true, "master_a": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b", "master_b": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b"}, "CMIP": {"core": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b", "equal": true, "json": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b", "verify": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b"}, "DIP": {"master_a": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b", "master_b": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b", "ok": true}, "DP": {"diverged": true, "master_a": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b", "master_b": "ce8e93c9310f993a1e3c8cd439542929b2fa81d33d7b074a1cb90e07ccfec0c0", "perturb": {"C": {"__bor_delta__": 1}}}, "PEP": {"exception": "DeterminismError", "ok": true}, "PP": {"H_store_json": "7d5e17eae6caf6452a9650ffe563887d417c541e654e4f80548c75f35fa36f2a", "H_store_sqlite": "2a7845ffddcdbfa520e8431b028d6ce081112a85273e65a66e30a1791edfadff", "equal": true, "master_json": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b", "master_sqlite": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b"}, "PoPI": {"proof_hash": "d77c0a27e914f4e302be816f44af9b9078d40bf62e2d5247baa83ec9deea9f80"}, "TRP": {"equal": true, "master_t0": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b", "master_t1": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b"}}}
+{
+  "primary": {
+    "meta": {
+      "S0": 7,
+      "C": {
+        "offset": 4
+      },
+      "V": "v1.0",
+      "env": {
+        "python": "3.12.2",
+        "os": "Darwin",
+        "arch": "x86_64",
+        "release": "23.0.0",
+        "cwd": "/Users/kaku/Desktop/bor-sdk-ap-1/BoR-proof-SDK",
+        "hashseed": "not-set"
+      },
+      "H0": "0401c972619862700589f8eb313fa9dad5affe6d203b09b07ca3b013f71949db"
+    },
+    "steps": [
+      {
+        "i": 1,
+        "fn": "add",
+        "input": 7,
+        "output": 11,
+        "config": {
+          "offset": 4
+        },
+        "version": "v1.0",
+        "fingerprint": "ac971c1ddacb80d4c117bc4eea2fcb49cfc4af61c1e441be88403ba061f8d60b"
+      },
+      {
+        "i": 2,
+        "fn": "square",
+        "input": 11,
+        "output": 121,
+        "config": {
+          "offset": 4
+        },
+        "version": "v1.0",
+        "fingerprint": "1862bc99cabe4c467216a642394b4b488d0a255526b66b80d369d4966f28e9f1"
+      }
+    ],
+    "stage_hashes": [
+      "ac971c1ddacb80d4c117bc4eea2fcb49cfc4af61c1e441be88403ba061f8d60b",
+      "1862bc99cabe4c467216a642394b4b488d0a255526b66b80d369d4966f28e9f1"
+    ],
+    "master": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b"
+  },
+  "subproofs": {
+    "DIP": {
+      "ok": true,
+      "master_a": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b",
+      "master_b": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b"
+    },
+    "DP": {
+      "diverged": true,
+      "master_a": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b",
+      "master_b": "ce8e93c9310f993a1e3c8cd439542929b2fa81d33d7b074a1cb90e07ccfec0c0",
+      "perturb": {
+        "C": {
+          "__bor_delta__": 1
+        }
+      }
+    },
+    "PEP": {
+      "ok": true,
+      "exception": "DeterminismError"
+    },
+    "PoPI": {
+      "proof_hash": "db8213aeee432049c4d08df32469c241c6345989ae22241ca0d9234f7128a278"
+    },
+    "CCP": {
+      "equal": true,
+      "master_a": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b",
+      "master_b": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b"
+    },
+    "CMIP": {
+      "equal": true,
+      "core": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b",
+      "verify": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b",
+      "json": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b"
+    },
+    "PP": {
+      "equal": true,
+      "H_store_json": "d3b9f6672e7ef41545b949a346da40e4d1e63e937f9798336626d882dfde412e",
+      "H_store_sqlite": "37bb58b6d03e0da19f1d32dd0a53f8d1d68fab951bc771d4bf1190e2f093948a",
+      "master_json": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b",
+      "master_sqlite": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b"
+    },
+    "TRP": {
+      "equal": true,
+      "master_t0": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b",
+      "master_t1": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b"
+    }
+  },
+  "subproof_hashes": {
+    "DIP": "18a52759146deabbe9052f4df6f0d3eae2d294b84fd414017227e04b2556d206",
+    "DP": "4ac483ec17f95f0ac8f6775538b0d56722ee1f9236e5f942911dbbcbe3a32d87",
+    "PEP": "c0e4d78eceb7364394567f5d7ec9479d8a35b6abcaf03db0a709f2505918bceb",
+    "PoPI": "14ec394f8480096a5eff2842b798c34f36e54119efa11f2515491c85e7e1c7ad",
+    "CCP": "2c49bebde4f03574db5154e31fdc8cddcbeec42d792143c7290c5da519cbb946",
+    "CMIP": "4d5c3e9ad6903db3027287c81f691da32f3f0fcfcf0c61eabcff792d58453761",
+    "PP": "701a2004d7ab9975dc00ce726aff4898d14de3511389a447d612d302031df51d",
+    "TRP": "6ad6a0714581472871e7e7814bad3d3153d390c2790fa2097e206e0283452f7f"
+  },
+  "H_RICH": "563c5a7e207e19912571a4bd1e30db3d5dd74e88d63dd9aba389894bf3257ff0",
+  "H_MASTER": "dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b",
+  "generated_at": "2025-11-08T17:46:36Z"
+}

@@ -24,6 +24,7 @@ wheels/
 venv/
 env/
 ENV/
+.venv_verify/
 
 # IDE
 .vscode/
@@ -44,5 +45,6 @@ Thumbs.db
 
 # Project specific
 out/
+out_test/
 .bor_store/
 *.p4.json

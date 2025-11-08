@@ -1,5 +1,9 @@
+CHANGELOG.md
+CONTRIBUTING.md
 LICENSE
+MANIFEST.in
 README.md
+SECURITY.md
 pyproject.toml
 setup.py
 bor/__init__.py
@@ -16,7 +20,9 @@ bor_sdk.egg-info/PKG-INFO
 bor_sdk.egg-info/SOURCES.txt
 bor_sdk.egg-info/dependency_links.txt
 bor_sdk.egg-info/entry_points.txt
+bor_sdk.egg-info/requires.txt
 bor_sdk.egg-info/top_level.txt
+docs/BoR_Execution_Trace_Report.md
 examples/__init__.py
 examples/demo.py
 examples/demo_add_square.py
@@ -25,6 +31,7 @@ examples/demo_randomness_guard.py
 examples/demo_reconcile.py
 examples/demo_verify.py
 tests/__init__.py
+tests/test_consensus_ledger.py
 tests/test_core.py
 tests/test_decorators.py
 tests/test_determinism_suite.py
@@ -32,10 +39,13 @@ tests/test_e2_remaining_subproofs.py
 tests/test_e_subproofs_bundle.py
 tests/test_f_bundle_verify_and_trace.py
 tests/test_hash_utils.py
+tests/test_invariant_hooks.py
 tests/test_p0_init.py
 tests/test_p1_steps.py
 tests/test_p2_master.py
 tests/test_p3_verify.py
 tests/test_p4_persistence.py
+tests/test_register_hash.py
+tests/test_self_audit.py
 tests/test_store.py
 tests/test_verify.py

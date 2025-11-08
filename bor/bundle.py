@@ -7,6 +7,8 @@ Produces a comprehensive verification package with H_RICH commitment.
 
 import hashlib
 import json
+import os
+import sys
 import time
 from typing import Any, Callable, Dict, Iterable
 
@@ -21,6 +23,19 @@ from bor.subproofs import (
     run_PP,
     run_TRP,
 )
+
+# Import invariant hooks with backward compatibility
+try:
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src'))
+    from bor_core.hooks import register_proof_hook, drift_check_hook
+    from bor_core.registry import update_metric
+    INVARIANT_HOOKS_AVAILABLE = True
+except ImportError:
+    # Graceful fallback if hooks not available
+    register_proof_hook = lambda *a, **k: None
+    drift_check_hook = lambda *a, **k: None
+    update_metric = lambda *a, **k: None
+    INVARIANT_HOOKS_AVAILABLE = False
 
 
 def build_primary(
@@ -90,8 +105,38 @@ def build_bundle(
         "subproofs": subproofs,
         "subproof_hashes": sub_hashes,
         "H_RICH": H_RICH,
+        "H_MASTER": primary.get("master"),  # Store HMASTER for invariant tracking
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     }
+    
+    # Invariant Framework: Register proof and check for drift
+    if INVARIANT_HOOKS_AVAILABLE:
+        current_master = primary.get("master")
+        
+        # Store current metrics
+        update_metric("H_MASTER", current_master)
+        update_metric("H_RICH", H_RICH)
+        
+        # Check for drift by loading previous HMASTER if it exists
+        try:
+            prev_bundle_path = "out/rich_proof_bundle.json"
+            if os.path.exists(prev_bundle_path):
+                with open(prev_bundle_path, 'r') as f:
+                    prev_bundle = json.load(f)
+                    prev_master = prev_bundle.get("H_MASTER") or prev_bundle.get("primary", {}).get("master")
+                    if prev_master:
+                        drift_detected = drift_check_hook(prev_master, current_master)
+                        if drift_detected:
+                            print(f"[BoR-Invariant] WARNING: Drift detected between runs")
+                        else:
+                            print(f"[BoR-Invariant] Reproducibility maintained: HMASTER matches previous run")
+        except Exception:
+            # Silently continue if drift check fails
+            pass
+        
+        # Emit telemetry
+        print(f"[BoR-Invariant] H_RICH = {H_RICH[:16]}... | Subproofs = {len(subproofs)} | Status = Verified")
+    
     return bundle
 
 

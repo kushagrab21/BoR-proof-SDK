@@ -9,11 +9,25 @@ import hashlib
 import json
 import os
 import sqlite3
+import sys
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from bor.core import Proof
+
+# Import invariant hooks with backward compatibility
+try:
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src'))
+    from bor_core.hooks import register_proof_hook
+    from bor_core.registry import update_metric, log_state
+    INVARIANT_HOOKS_AVAILABLE = True
+except ImportError:
+    # Graceful fallback if hooks not available
+    register_proof_hook = lambda *a, **k: None
+    update_metric = lambda *a, **k: None
+    log_state = lambda *a, **k: None
+    INVARIANT_HOOKS_AVAILABLE = False
 
 DEFAULT_DIR = ".bor_store"
 DEFAULT_DB = "proofs.db"
@@ -51,6 +65,12 @@ def save_json_proof(
     # write sidecar for audit
     with open(path + ".p4.json", "w", encoding="utf-8") as f:
         json.dump(record, f, sort_keys=True)
+    
+    # Invariant Framework: P₄ Persistence verification
+    if INVARIANT_HOOKS_AVAILABLE:
+        update_metric(f"H_store_json_{label}", h_store)
+        log_state({"step": "store_json", "label": label, "H_store": h_store, "status": "ok"})
+    
     return record
 
 
@@ -116,13 +136,21 @@ def save_sqlite_proof(
             "utf-8"
         )
         h_store = _sha256_bytes(row_blob + str(ts).encode("utf-8"))
-    return {
+    
+    result = {
         "label": label,
         "db_path": db_path,
         "rowid": rowid,
         "timestamp": ts,
         "H_store": h_store,
     }
+    
+    # Invariant Framework: P₄ Persistence verification
+    if INVARIANT_HOOKS_AVAILABLE:
+        update_metric(f"H_store_sqlite_{label}", h_store)
+        log_state({"step": "store_sqlite", "label": label, "H_store": h_store, "status": "ok"})
+    
+    return result
 
 
 def load_sqlite_proof(label: str, root: str = DEFAULT_DIR) -> Optional[Dict[str, Any]]:

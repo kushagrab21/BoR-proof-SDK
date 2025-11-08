@@ -9,10 +9,26 @@ Phase F: Rich Proof Bundle verification and trace rendering.
 import hashlib
 import importlib
 import json
+import os
+import sys
 from typing import Any, Callable, Dict, Iterable, List, Optional
 
 from bor.core import BoRRun
 from bor.store import load_json_proof, load_sqlite_proof
+
+# Import invariant hooks with backward compatibility
+try:
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src'))
+    from bor_core.hooks import drift_check_hook, post_run_hook
+    from bor_core.registry import update_metric, log_state
+    INVARIANT_HOOKS_AVAILABLE = True
+except ImportError:
+    # Graceful fallback if hooks not available
+    drift_check_hook = lambda *a, **k: None
+    post_run_hook = lambda *a, **k: None
+    update_metric = lambda *a, **k: None
+    log_state = lambda *a, **k: None
+    INVARIANT_HOOKS_AVAILABLE = False
 
 
 class HashMismatchError(Exception):
@@ -74,6 +90,18 @@ def verify_primary_proof_dict(
         "stored_master": stored_master,
         "recomputed_master": recomputed_master,
     }
+    
+    # Invariant Framework: P₃ Replay verification
+    if INVARIANT_HOOKS_AVAILABLE:
+        post_run_hook("replay_verify", {"HMASTER_replayed": recomputed_master})
+        drift_detected = drift_check_hook(stored_master, recomputed_master)
+        update_metric("replay_verified", ok)
+        
+        if ok and not drift_detected:
+            print(f"[BoR-Replay] VERIFIED  Δ=0")
+        elif drift_detected:
+            print(f"[BoR-Replay] DRIFT DETECTED")
+    
     if not ok:
         raise HashMismatchError(json.dumps(report, sort_keys=True))
     return report
@@ -106,6 +134,17 @@ def persistence_equivalence(
     if ps is None:
         return {"equal": False, "reason": "sqlite_missing"}
     equal = pj["master"] == ps["master"]
+    
+    # Invariant Framework: P₄ Storage drift detection
+    if INVARIANT_HOOKS_AVAILABLE:
+        if not equal:
+            log_state({"step": "persistence_check", "status": "STORAGE_DRIFT", 
+                      "master_json": pj["master"][:16], "master_sqlite": ps["master"][:16]})
+            print(f"[BoR-Storage] DRIFT DETECTED between JSON and SQLite")
+        else:
+            log_state({"step": "persistence_check", "status": "ok"})
+            update_metric("storage_drift_detected", False)
+    
     return {"equal": equal, "master_json": pj["master"], "master_sqlite": ps["master"]}
 
 
@@ -176,6 +215,12 @@ def verify_bundle_dict(
     if primary_ok is not None:
         ok = ok and primary_ok
     report["ok"] = bool(ok)
+    
+    # Invariant Framework: Bundle verification telemetry
+    if INVARIANT_HOOKS_AVAILABLE:
+        update_metric("bundle_verified", ok)
+        if ok:
+            log_state({"step": "bundle_verify", "status": "ok", "H_RICH": H_RICH})
 
     if not report["ok"]:
         raise BundleVerificationError(json.dumps(report, sort_keys=True))

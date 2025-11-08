@@ -7,11 +7,25 @@ and all fingerprints concatenate into HMASTER.
 """
 
 import inspect
+import sys
+import os
 from dataclasses import asdict, dataclass
 from typing import Any, Callable, Dict, List
 
 from bor.exceptions import DeterminismError, HashMismatchError
 from bor.hash_utils import canonical_bytes, content_hash, env_fingerprint
+
+# Import invariant hooks with backward compatibility
+try:
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src'))
+    from bor_core.hooks import pre_run_hook, post_run_hook, transform_hook
+    INVARIANT_HOOKS_AVAILABLE = True
+except ImportError:
+    # Graceful fallback if hooks not available
+    pre_run_hook = lambda *a, **k: (None, None)
+    post_run_hook = lambda *a, **k: None
+    transform_hook = lambda f: f
+    INVARIANT_HOOKS_AVAILABLE = False
 
 
 @dataclass
@@ -73,6 +87,12 @@ class BoRRun:
         # Optional console confirmation
         print(f"[BoR P₀] Initialization Proof Hash = {self.P0}")
 
+        # Invariant Framework: Capture pre-run state
+        if INVARIANT_HOOKS_AVAILABLE:
+            self.h_env, self.h_input = pre_run_hook(S0, C, V)
+        else:
+            self.h_env, self.h_input = None, None
+
         self.steps: List[BoRStep] = []
         self._final_state = None
         self.proof: Proof | None = None
@@ -84,8 +104,11 @@ class BoRRun:
             raise DeterminismError("Step must be a callable.")
         prev_state = self.initial_state if not self.steps else self._final_state
 
+        # Invariant Framework: Wrap function with transform_hook
+        deterministic_fn = transform_hook(fn) if INVARIANT_HOOKS_AVAILABLE else fn
+
         try:
-            output_state = fn(prev_state, self.config, self.code_version)
+            output_state = deterministic_fn(prev_state, self.config, self.code_version)
         except Exception as e:
             raise DeterminismError(
                 f"Function {fn.__name__} failed deterministically: {e}"
@@ -103,6 +126,10 @@ class BoRRun:
         # Emit P₁ step-level proof hash
         step_num = len(self.steps)
         print(f"[BoR P₁] Step #{step_num} '{fn_name}' → hᵢ = {step.fingerprint}")
+
+        # Invariant Framework: Post-run verification
+        if INVARIANT_HOOKS_AVAILABLE:
+            post_run_hook(fn_name, {"output": output_state, "fingerprint": step.fingerprint})
 
         return self
 
@@ -148,6 +175,11 @@ class BoRRun:
             meta=meta, steps=step_records, stage_hashes=stage_hashes, master=HMASTER
         )
         print(f"[BoR P₂] HMASTER = {HMASTER}")
+        
+        # Invariant Framework: Emit telemetry
+        if INVARIANT_HOOKS_AVAILABLE:
+            print(f"[BoR-Invariant] HMASTER = {HMASTER[:16]}... | Steps = {len(self.steps)} | Hooks = Active")
+        
         return self.proof
 
     def to_primary_proof(self) -> Dict[str, Any]:

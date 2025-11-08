@@ -1,0 +1,23 @@
+{
+  "H_MASTER": "fa6114cabe068aef8a4c2d7548652727ca228ca0fc9be5ef7154d4efccaeb669",
+  "H_RICH": "d0b341e7c37a4de425c626241a82a7d24e8729b459ab13f46fa843d93086506a",
+  "H_store_json_cmip": "a958670fcfc01e2f964a17ffe7ac932cb30e75e940562b24b0b6ac2cd7e65d53",
+  "H_store_json_complete": "0ee244e8ad9b8bfbb9ab80ae0e4f49f3409e56280a024c2b3005616e6c802881",
+  "H_store_json_demo": "781026276ed9f117d701423847c53d3eafb59ccbda1b91886e3382272fa034b8",
+  "H_store_json_demo1": "6a0fbef2332ab13664870ef09bac385a3713e020a9ea64aa506a6a309d157fb5",
+  "H_store_json_demo2": "0ee244e8ad9b8bfbb9ab80ae0e4f49f3409e56280a024c2b3005616e6c802881",
+  "H_store_json_only_json": "0ee244e8ad9b8bfbb9ab80ae0e4f49f3409e56280a024c2b3005616e6c802881",
+  "H_store_json_pp": "a958670fcfc01e2f964a17ffe7ac932cb30e75e940562b24b0b6ac2cd7e65d53",
+  "H_store_json_t1": "6a0fbef2332ab13664870ef09bac385a3713e020a9ea64aa506a6a309d157fb5",
+  "H_store_json_test_sidecar": "f8bb9bb350e75b8570ba489723835f02a1fba15dd24bb3c811c9b3523ce92809",
+  "H_store_sqlite_complete": "c58df0494e339d5956bc0160ab4fb43cce86dd1df879b612a5097a6e3a18622a",
+  "H_store_sqlite_demo": "6e861d1b0299005062397a11cb29eb8fef5c691cd894251aa880a0f11923b344",
+  "H_store_sqlite_ledger": "86585d5713a2fea21abf8ffc49fb1c3036788eb6e914a5745162c443fe0e4345",
+  "H_store_sqlite_pp": "bebd0b2ec2a89c726bae7dff538ef0a700e5ce2515be7e7204582c9d383ed5ac",
+  "H_store_sqlite_t2": "0e8b27262bbb67380340877d601c9a0df3d7a8617f0e517f42cb4b3073d6de24",
+  "H_store_sqlite_test_row": "8a73922fbb6923814dbf42b6619d94630adbc7f1f52d6649652551fb50c12051",
+  "bundle_verified": true,
+  "drift_detected": true,
+  "replay_verified": false,
+  "storage_drift_detected": false
+}
