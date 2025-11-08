@@ -13,9 +13,10 @@ help:
 	@echo "  make persist    Persist proof to storage"
 	@echo ""
 	@echo "Meta-Layer:"
-	@echo "  make audit      Self-audit last 5 bundles"
-	@echo "  make consensus  Build consensus ledger"
-	@echo "  make avalanche  Run avalanche effect verification"
+	@echo "  make audit              Self-audit last 5 bundles"
+	@echo "  make consensus          Build consensus ledger"
+	@echo "  make avalanche          Run avalanche effect verification"
+	@echo "  make avalanche-verify   Update avalanche assets (image + README section)"
 	@echo ""
 	@echo "Development:"
 	@echo "  make test       Run test suite"
@@ -54,6 +55,9 @@ consensus:
 
 avalanche:
 	python avalanche_verification.py
+
+avalanche-verify:
+	python tools/update_avalanche_assets.py
 
 test:
 	pytest -q

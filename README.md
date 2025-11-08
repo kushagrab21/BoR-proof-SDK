@@ -1391,3 +1391,25 @@ When these equalities hold, reasoning itself has reached consensus — the first
 | Old `borp` on PATH | `which borp` → `/opt/anaconda3/bin/borp` | Reactivate venv or run `.venv/bin/borp` |
 | No `proof_registry.json` created | Forgot `register-hash` step | Run `borp register-hash --label my-node` |
 | Different H_RICH from others | Changed inputs/config | Use exact demo parameters |
+
+<!-- AVA_SECTION_START -->
+## 🧠 Deterministic Baseline & Bit-Level Avalanche Verification
+
+This figure visualizes the **256-bit SHA-256 fingerprints** (HMASTER) before and after a single-line logic change, and their bitwise XOR difference. It demonstrates the **avalanche property** (~50% bits flip) — a cryptographic guarantee that even tiny logic edits produce a completely new reasoning identity.
+
+**Hashes**
+- Official HMASTER: `dde71a3e4391be92ebb1ffe972388a262633328612435fee83ece2dedae24c5b`
+- Modified HMASTER: `14b8903f7fd1f5ddd4f32b8c336d2d6608a4a743b8621610a9c0b0dc0bcfbce5`
+- Bitwise flips: **117/256** (**45.70%**)
+
+![Avalanche Verification](docs/avalanche_bitdiff_report.png)
+
+**How it's computed**
+- Official logic: `examples.demo:add`
+- Modified logic: `demo_modified:add` (adds **+1**)
+- XOR map: red = flipped bit; overlay: green=same, red=flipped.
+
+<!-- AVA_SECTION_END -->
+
+
+
