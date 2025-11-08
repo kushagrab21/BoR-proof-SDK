@@ -1,4 +1,4 @@
-.PHONY: setup prove demo verify persist audit consensus test lint fmt check ci clean verify-release manual-verify help
+.PHONY: setup prove demo verify persist audit consensus avalanche test lint fmt check ci clean verify-release manual-verify help
 
 help:
 	@echo "BoR-Proof SDK - Developer Commands"
@@ -15,6 +15,7 @@ help:
 	@echo "Meta-Layer:"
 	@echo "  make audit      Self-audit last 5 bundles"
 	@echo "  make consensus  Build consensus ledger"
+	@echo "  make avalanche  Run avalanche effect verification"
 	@echo ""
 	@echo "Development:"
 	@echo "  make test       Run test suite"
@@ -50,6 +51,9 @@ audit:
 
 consensus:
 	python evaluate_invariant.py --consensus-ledger
+
+avalanche:
+	python avalanche_verification.py
 
 test:
 	pytest -q

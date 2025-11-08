@@ -46,5 +46,14 @@ Thumbs.db
 # Project specific
 out/
 out_test/
+out_ref/
+out_mod/
+out_ref_test/
+out_mod_test/
 .bor_store/
 *.p4.json
+
+# Avalanche verification
+demo_modified.py
+test_modified.py
+avalanche_report.png
