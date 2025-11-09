@@ -53,7 +53,20 @@ out_mod_test/
 .bor_store/
 *.p4.json
 
+# Environment and credentials
+.env
+.env.local
+.env.*.local
+
+# BoR proof outputs
+proofs/
+*.proof.json
+
 # Avalanche verification
 demo_modified.py
 test_modified.py
 avalanche_report.png
+
+# LLM Sandbox traces
+llm_traces/
+bor_inputs/

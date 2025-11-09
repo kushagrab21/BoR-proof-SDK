@@ -1,0 +1,22 @@
+// BoR Proof-of-Cognition Certificate Hierarchy
+digraph {
+	rankdir=TB
+	size="24,20"
+	bgcolor="#F9FAFB:FFFFFF"
+	fontcolor="#1F2937" fontname="Inter, Arial"
+	pad=0.6
+	nodesep=1.0
+	ranksep=1.8
+	node [fontname="Inter, Arial" fontsize=11 margin="0.5,0.3" penwidth=2 shape=box style="rounded,filled"]
+	edge [arrowsize=1.0 fontcolor="#6B7280" fontname="Inter, Arial" fontsize=9 penwidth=2.5]
+	session [label="🎯 SESSION ROOT
+8347f167...
+
+Total Steps: 1" fillcolor="#94A3B8:#64748B" fontcolor="#FFFFFF" fontsize=14 penwidth=4 peripheries=2 style="rounded,filled"]
+	step_1 [label="✓
+S1
+Test extraction pipeline
+🔒 efcf738e98..." fillcolor="#10B981:#059669" fontcolor="#FFFFFF" fontsize=9 penwidth=2 shape=circle style=filled]
+	master_0 -> step_1 [color="#9CA3AF" penwidth=2 style=dashed]
+	fontcolor="#6B7280" fontsize=11 label="\n\n🔐 Proof-of-Cognition Certificate Tree — Cryptographically Linked Hierarchy\nGuard Summary: 🟢 1  🟡 0  🔴 0  |  Masters: 0/0 verified\nBoR-SDK • Deterministic AI • Hallucination-Proof Reasoning\nGenerated: 2025-11-09 15:34:16"
+}

@@ -1,0 +1,520 @@
+{
+  "metadata": {
+    "extraction_timestamp": "2025-11-09T10:41:13.881936+00:00",
+    "source_directory": "llm_traces",
+    "source_trace": "llm_traces/trace_1f5af58b.json",
+    "chain_valid": true,
+    "hashes_valid": true,
+    "total_sessions": 1,
+    "guards_computed": true,
+    "trace_mode": true,
+    "token_count": 27,
+    "model": "mock-model"
+  },
+  "steps": [
+    {
+      "step_number": 1,
+      "session_step_number": 1,
+      "session_id": "1f5af58b",
+      "timestamp": 1762684506.97901,
+      "prompt": "who am i",
+      "response": "This is a simulated LLM response for testing purposes. It demonstrates the trace capture pipeline without making actual API calls. The trace includes token-level information with logprobs.",
+      "hash_prompt": "73d7b7288d31175792d8a1f51b63936d5683718082f5a401b4e9d6829de967d3",
+      "hash_response": "6959805b4c67d62980e84f298dffeaa7667861d64bb424a6a2f2571484a8edbe",
+      "chain_hash": "6317b0575d87a4dff75f60889f98fdd20cf6a10e8595d24f7c1745b28819b957",
+      "parent_hash": null,
+      "guard_state": {
+        "semantic_similarity": 0.025,
+        "entropy_change": 0.0,
+        "logical_consistency": 1.0,
+        "token_overlap": 0.0,
+        "status": "red",
+        "triggered_guards": [
+          "semantic_similarity_red",
+          "token_overlap_red"
+        ]
+      },
+      "metadata": {
+        "execution_time_ms": 500.0,
+        "model": "mock-model",
+        "deterministic": false,
+        "token_count": 27,
+        "temperature": 0.7
+      },
+      "trust_diagnostics": {
+        "trust_score": 0.41,
+        "trust_label": "Untrusted",
+        "failure_reason": "Semantic drift (similarity 0.03 < 0.50); Low token overlap (0.00 < 0.15)",
+        "root_causes": [
+          "Semantic Drift",
+          "Low Token Overlap"
+        ]
+      },
+      "trace_tokens": [
+        {
+          "index": 0,
+          "token": "This",
+          "logprob": -0.1,
+          "probability": 0.9330329915368074
+        },
+        {
+          "index": 1,
+          "token": "is",
+          "logprob": -0.11,
+          "probability": 0.9265880618903709
+        },
+        {
+          "index": 2,
+          "token": "a",
+          "logprob": -0.12000000000000001,
+          "probability": 0.9201876506248751
+        },
+        {
+          "index": 3,
+          "token": "simulated",
+          "logprob": -0.13,
+          "probability": 0.9138314502294005
+        },
+        {
+          "index": 4,
+          "token": "LLM",
+          "logprob": -0.14,
+          "probability": 0.9075191553171609
+        },
+        {
+          "index": 5,
+          "token": "response",
+          "logprob": -0.15000000000000002,
+          "probability": 0.9012504626108302
+        },
+        {
+          "index": 6,
+          "token": "for",
+          "logprob": -0.16,
+          "probability": 0.8950250709279725
+        },
+        {
+          "index": 7,
+          "token": "testing",
+          "logprob": -0.17,
+          "probability": 0.8888426811665702
+        },
+        {
+          "index": 8,
+          "token": "purposes.",
+          "logprob": -0.18,
+          "probability": 0.8827029962906549
+        },
+        {
+          "index": 9,
+          "token": "It",
+          "logprob": -0.19,
+          "probability": 0.8766057213160351
+        },
+        {
+          "index": 10,
+          "token": "demonstrates",
+          "logprob": -0.2,
+          "probability": 0.8705505632961241
+        },
+        {
+          "index": 11,
+          "token": "the",
+          "logprob": -0.21000000000000002,
+          "probability": 0.8645372313078652
+        },
+        {
+          "index": 12,
+          "token": "trace",
+          "logprob": -0.22,
+          "probability": 0.8585654364377537
+        },
+        {
+          "index": 13,
+          "token": "capture",
+          "logprob": -0.23,
+          "probability": 0.8526348917679567
+        },
+        {
+          "index": 14,
+          "token": "pipeline",
+          "logprob": -0.24000000000000002,
+          "probability": 0.8467453123625271
+        },
+        {
+          "index": 15,
+          "token": "without",
+          "logprob": -0.25,
+          "probability": 0.8408964152537145
+        },
+        {
+          "index": 16,
+          "token": "making",
+          "logprob": -0.26,
+          "probability": 0.8350879194283694
+        },
+        {
+          "index": 17,
+          "token": "actual",
+          "logprob": -0.27,
+          "probability": 0.8293195458144417
+        },
+        {
+          "index": 18,
+          "token": "API",
+          "logprob": -0.28,
+          "probability": 0.8235910172675731
+        },
+        {
+          "index": 19,
+          "token": "calls.",
+          "logprob": -0.29000000000000004,
+          "probability": 0.8179020585577811
+        },
+        {
+          "index": 20,
+          "token": "The",
+          "logprob": -0.30000000000000004,
+          "probability": 0.8122523963562355
+        },
+        {
+          "index": 21,
+          "token": "trace",
+          "logprob": -0.31,
+          "probability": 0.8066417592221263
+        },
+        {
+          "index": 22,
+          "token": "includes",
+          "logprob": -0.32,
+          "probability": 0.8010698775896221
+        },
+        {
+          "index": 23,
+          "token": "token-level",
+          "logprob": -0.33,
+          "probability": 0.7955364837549187
+        },
+        {
+          "index": 24,
+          "token": "information",
+          "logprob": -0.33999999999999997,
+          "probability": 0.7900413118633772
+        },
+        {
+          "index": 25,
+          "token": "with",
+          "logprob": -0.35,
+          "probability": 0.7845840978967508
+        },
+        {
+          "index": 26,
+          "token": "logprobs.",
+          "logprob": -0.36,
+          "probability": 0.7791645796604999
+        }
+      ]
+    },
+    {
+      "step_number": 2,
+      "session_step_number": 2,
+      "session_id": "1f5af58b",
+      "timestamp": 1762684506.97901,
+      "prompt": "[Token chunk 1]",
+      "response": "ThisisasimulatedLLMresponsefortestingpurposes.It",
+      "hash_prompt": "93b3d3f7c6ff7b32e575cb864eb22d9c2003cceac4181432bb287d83943220fd",
+      "hash_response": "9e26b196fdde75d17329ce35ae081688cbff89cd6396631d59a60e53756906a3",
+      "chain_hash": "e03b7e33bc4dcf822185a2e036f1671cddeb7a4d9547993aa74d74428ea5028d",
+      "parent_hash": "6317b0575d87a4dff75f60889f98fdd20cf6a10e8595d24f7c1745b28819b957",
+      "guard_state": {
+        "semantic_similarity": 0.216,
+        "entropy_change": 0.709,
+        "logical_consistency": 0.986,
+        "token_overlap": 0.0,
+        "status": "red",
+        "triggered_guards": [
+          "semantic_similarity_red",
+          "entropy_change_red",
+          "token_overlap_red"
+        ]
+      },
+      "metadata": {
+        "execution_time_ms": 100,
+        "model": "mock-model",
+        "deterministic": false,
+        "chunk_index": 0,
+        "is_token_chunk": true
+      },
+      "trust_diagnostics": {
+        "trust_score": 0.342,
+        "trust_label": "Untrusted",
+        "failure_reason": "Semantic drift (similarity 0.22 < 0.50); High entropy jump (0.71 > 0.50 bits); Low token overlap (0.00 < 0.15)",
+        "root_causes": [
+          "Semantic Drift",
+          "Entropy Spike",
+          "Low Token Overlap"
+        ]
+      },
+      "trace_tokens": [
+        {
+          "index": 0,
+          "token": "This",
+          "logprob": -0.1,
+          "probability": 0.9330329915368074
+        },
+        {
+          "index": 1,
+          "token": "is",
+          "logprob": -0.11,
+          "probability": 0.9265880618903709
+        },
+        {
+          "index": 2,
+          "token": "a",
+          "logprob": -0.12000000000000001,
+          "probability": 0.9201876506248751
+        },
+        {
+          "index": 3,
+          "token": "simulated",
+          "logprob": -0.13,
+          "probability": 0.9138314502294005
+        },
+        {
+          "index": 4,
+          "token": "LLM",
+          "logprob": -0.14,
+          "probability": 0.9075191553171609
+        },
+        {
+          "index": 5,
+          "token": "response",
+          "logprob": -0.15000000000000002,
+          "probability": 0.9012504626108302
+        },
+        {
+          "index": 6,
+          "token": "for",
+          "logprob": -0.16,
+          "probability": 0.8950250709279725
+        },
+        {
+          "index": 7,
+          "token": "testing",
+          "logprob": -0.17,
+          "probability": 0.8888426811665702
+        },
+        {
+          "index": 8,
+          "token": "purposes.",
+          "logprob": -0.18,
+          "probability": 0.8827029962906549
+        },
+        {
+          "index": 9,
+          "token": "It",
+          "logprob": -0.19,
+          "probability": 0.8766057213160351
+        }
+      ]
+    },
+    {
+      "step_number": 3,
+      "session_step_number": 3,
+      "session_id": "1f5af58b",
+      "timestamp": 1762684507.07901,
+      "prompt": "[Token chunk 2]",
+      "response": "demonstratesthetracecapturepipelinewithoutmakingactualAPIcalls.",
+      "hash_prompt": "86ead1e835f229b3bbf2569538c2a3a5dd27d1a9462414d78cff1526172f9444",
+      "hash_response": "48605dbbb452786b28243a2c317ae52fb17e33f9094300c85d9da1a3a91f45fb",
+      "chain_hash": "30bd4d65c7437d6ba7279d1ca0d14b15d1691959ca7caf1fa2bff446e0bec2ea",
+      "parent_hash": "e03b7e33bc4dcf822185a2e036f1671cddeb7a4d9547993aa74d74428ea5028d",
+      "guard_state": {
+        "semantic_similarity": 0.169,
+        "entropy_change": 0.082,
+        "logical_consistency": 0.336,
+        "token_overlap": 0.0,
+        "status": "red",
+        "triggered_guards": [
+          "semantic_similarity_red",
+          "logical_consistency_yellow",
+          "token_overlap_red"
+        ]
+      },
+      "metadata": {
+        "execution_time_ms": 100,
+        "model": "mock-model",
+        "deterministic": false,
+        "chunk_index": 1,
+        "is_token_chunk": true
+      },
+      "trust_diagnostics": {
+        "trust_score": 0.318,
+        "trust_label": "Untrusted",
+        "failure_reason": "Semantic drift (similarity 0.17 < 0.50); Logical contradiction detected (consistency 0.34 < 0.40); Low token overlap (0.00 < 0.15)",
+        "root_causes": [
+          "Semantic Drift",
+          "Logical Contradiction",
+          "Low Token Overlap"
+        ]
+      },
+      "trace_tokens": [
+        {
+          "index": 10,
+          "token": "demonstrates",
+          "logprob": -0.2,
+          "probability": 0.8705505632961241
+        },
+        {
+          "index": 11,
+          "token": "the",
+          "logprob": -0.21000000000000002,
+          "probability": 0.8645372313078652
+        },
+        {
+          "index": 12,
+          "token": "trace",
+          "logprob": -0.22,
+          "probability": 0.8585654364377537
+        },
+        {
+          "index": 13,
+          "token": "capture",
+          "logprob": -0.23,
+          "probability": 0.8526348917679567
+        },
+        {
+          "index": 14,
+          "token": "pipeline",
+          "logprob": -0.24000000000000002,
+          "probability": 0.8467453123625271
+        },
+        {
+          "index": 15,
+          "token": "without",
+          "logprob": -0.25,
+          "probability": 0.8408964152537145
+        },
+        {
+          "index": 16,
+          "token": "making",
+          "logprob": -0.26,
+          "probability": 0.8350879194283694
+        },
+        {
+          "index": 17,
+          "token": "actual",
+          "logprob": -0.27,
+          "probability": 0.8293195458144417
+        },
+        {
+          "index": 18,
+          "token": "API",
+          "logprob": -0.28,
+          "probability": 0.8235910172675731
+        },
+        {
+          "index": 19,
+          "token": "calls.",
+          "logprob": -0.29000000000000004,
+          "probability": 0.8179020585577811
+        }
+      ]
+    },
+    {
+      "step_number": 4,
+      "session_step_number": 4,
+      "session_id": "1f5af58b",
+      "timestamp": 1762684507.1790102,
+      "prompt": "[Token chunk 3]",
+      "response": "Thetraceincludestoken-levelinformationwithlogprobs.",
+      "hash_prompt": "f542b41f77f02913f09ed1cdd7d4a0063b13972c33e7a81623555730faaf5033",
+      "hash_response": "79e2b03711f0c67d72926601d228d08f283cae32aa5927cb5b3beb21923306a0",
+      "chain_hash": "71e89f6a30c16f5dec1633e27eb9c1019f0bb89af8cb33e7e7fff50a9a1edc4c",
+      "parent_hash": "30bd4d65c7437d6ba7279d1ca0d14b15d1691959ca7caf1fa2bff446e0bec2ea",
+      "guard_state": {
+        "semantic_similarity": 0.273,
+        "entropy_change": 0.029,
+        "logical_consistency": 0.011,
+        "token_overlap": 0.0,
+        "status": "red",
+        "triggered_guards": [
+          "semantic_similarity_red",
+          "logical_consistency_yellow",
+          "token_overlap_red"
+        ]
+      },
+      "metadata": {
+        "execution_time_ms": 70,
+        "model": "mock-model",
+        "deterministic": false,
+        "chunk_index": 2,
+        "is_token_chunk": true
+      },
+      "trust_diagnostics": {
+        "trust_score": 0.306,
+        "trust_label": "Untrusted",
+        "failure_reason": "Semantic drift (similarity 0.27 < 0.50); Logical contradiction detected (consistency 0.01 < 0.40); Low token overlap (0.00 < 0.15)",
+        "root_causes": [
+          "Semantic Drift",
+          "Logical Contradiction",
+          "Low Token Overlap"
+        ]
+      },
+      "trace_tokens": [
+        {
+          "index": 20,
+          "token": "The",
+          "logprob": -0.30000000000000004,
+          "probability": 0.8122523963562355
+        },
+        {
+          "index": 21,
+          "token": "trace",
+          "logprob": -0.31,
+          "probability": 0.8066417592221263
+        },
+        {
+          "index": 22,
+          "token": "includes",
+          "logprob": -0.32,
+          "probability": 0.8010698775896221
+        },
+        {
+          "index": 23,
+          "token": "token-level",
+          "logprob": -0.33,
+          "probability": 0.7955364837549187
+        },
+        {
+          "index": 24,
+          "token": "information",
+          "logprob": -0.33999999999999997,
+          "probability": 0.7900413118633772
+        },
+        {
+          "index": 25,
+          "token": "with",
+          "logprob": -0.35,
+          "probability": 0.7845840978967508
+        },
+        {
+          "index": 26,
+          "token": "logprobs.",
+          "logprob": -0.36,
+          "probability": 0.7791645796604999
+        }
+      ]
+    }
+  ],
+  "master_certificates": [],
+  "session_info": {
+    "session_id": "1f5af58b",
+    "total_steps": 4,
+    "start_time": 1762684506.97901,
+    "end_time": 1762684507.1790102,
+    "model": "mock-model",
+    "prompt": "who am i",
+    "response": "This is a simulated LLM response for testing purposes. It demonstrates the trace capture pipeline without making actual API calls. The trace includes token-level information with logprobs."
+  }
+}

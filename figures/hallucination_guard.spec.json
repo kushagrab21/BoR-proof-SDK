@@ -1,0 +1,30 @@
+{
+  "steps": [
+    {
+      "step_number": 1,
+      "semantic_similarity": 0.761,
+      "entropy_change": 0.0,
+      "logical_consistency": 1.0,
+      "token_overlap": 0.3,
+      "status": "green"
+    }
+  ],
+  "thresholds": {
+    "semantic_similarity": {
+      "green": 0.75,
+      "yellow": 0.5
+    },
+    "entropy_change": {
+      "green": 0.2,
+      "yellow": 0.5
+    },
+    "logical_consistency": {
+      "green": 0.7,
+      "yellow": 0.5
+    },
+    "token_overlap": {
+      "green": 0.3,
+      "yellow": 0.15
+    }
+  }
+}

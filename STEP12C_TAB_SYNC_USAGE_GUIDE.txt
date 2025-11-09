@@ -1,0 +1,257 @@
+═══════════════════════════════════════════════════════════════
+  🚀 Tab Synchronization - Quick Usage Guide
+═══════════════════════════════════════════════════════════════
+
+WHAT IT DOES:
+────────────
+Automatically synchronizes all dashboard tabs when you capture
+a new trace or verify it with BoR. No more manual reloading!
+
+────────────────────────────────────────────────────────────────
+📋 QUICK START (3 Steps)
+────────────────────────────────────────────────────────────────
+
+1️⃣ LAUNCH DASHBOARD
+   ```bash
+   cd /Users/kaku/Desktop/bor-sdk-ap2/bor-sdk-ap-1/BoR-proof-SDK
+   streamlit run interactive_visual_dashboard.py
+   ```
+
+2️⃣ CAPTURE A TRACE
+   Go to: 🤖 LLM Sandbox tab
+   
+   Option A - Mock Trace (No API):
+   ├─ Enter any prompt
+   └─ Click "🎭 Generate Mock Trace"
+   
+   Option B - Live Streaming (No API):
+   ├─ Enter prompt
+   ├─ Enable "🔴 Live Trust Diagnostics"
+   └─ Click "🎭 Stream Mock"
+   
+   Option C - Real LLM (Requires API Key):
+   ├─ Set OPENAI_API_KEY in .env
+   ├─ Enter prompt
+   └─ Click "🚀 Run Trace Capture"
+
+3️⃣ WATCH THE MAGIC
+   ✅ Blue notification appears: "New data captured!"
+   ✅ Session ID shown in notification
+   ✅ All tabs now aware of new trace
+
+────────────────────────────────────────────────────────────────
+🎯 COMPLETE WORKFLOW
+────────────────────────────────────────────────────────────────
+
+STEP-BY-STEP:
+─────────────
+
+1. Capture Trace (any method above)
+   → Session state updates automatically
+   → Notification banner appears at top
+
+2. Verify with BoR (optional but recommended)
+   → Click "🔐 Verify with BoR" button
+   → Wait for 3-step pipeline:
+     ⚙️ Extract → Compute guards → Generate visuals
+   → Info message: "Switch to 'Latest Trace' in sidebar"
+
+3. Switch Data Source
+   → Sidebar → 📂 Data Source
+   → Select "Latest Trace"
+   → All tabs now show verified data
+
+4. Explore All Tabs
+   → 🧠 Reasoning Flow - See the trace graph
+   → 🚨 Hallucination Monitor - View trust metrics
+   → 🔐 Cryptographic Chain - Inspect hashes
+   → ✅ Verification Status - Check overall state
+
+5. Capture Another Trace
+   → Repeat from step 1
+   → Notification updates with new session ID
+   → Switch between "Main Proofs" and "Latest Trace"
+
+────────────────────────────────────────────────────────────────
+🎛️ SIDEBAR CONTROLS
+────────────────────────────────────────────────────────────────
+
+📂 Data Source
+  ○ Main Proofs → Shows proofs/ directory data
+  ● Latest Trace → Shows bor_inputs/visual_data_trace.json
+
+🔄 Actions
+  ♻️ Reload Data
+     • Clears cache
+     • Reloads from disk
+     • Removes notification banner
+  
+  🔄 Sync Tabs
+     • Force-refreshes all tabs
+     • Uses cached data if available
+     • Quick way to sync without reload
+
+────────────────────────────────────────────────────────────────
+💡 PRO TIPS
+────────────────────────────────────────────────────────────────
+
+TIP #1: Auto-Verify
+───────────────────
+Enable "⚙️ Auto-Verify after Capture" checkbox
+→ Streaming will auto-run BoR verification when complete
+
+TIP #2: Quick Demo
+──────────────────
+Fastest way to see everything:
+1. LLM Sandbox → "🎭 Stream Mock"
+2. Enable "Auto-Verify after Capture"
+3. Watch live stream + auto-verification
+4. Switch to "Latest Trace" in sidebar
+5. Browse all tabs
+
+TIP #3: Compare Traces
+──────────────────────
+Use Data Source selector to toggle between:
+• Main Proofs (baseline data)
+• Latest Trace (your new capture)
+
+TIP #4: Reset Everything
+────────────────────────
+Click "♻️ Reload Data" to:
+• Clear session state
+• Remove notification
+• Start fresh
+
+TIP #5: Live Monitor
+────────────────────
+In Sandbox tab, enable "🔴 Live Trust Diagnostics" to see:
+📈 Trust timeline (updates in real-time)
+🚨 Hallucination alerts (flagged tokens)
+🧩 Root-cause heatmap (diagnostic frequencies)
+🔄 Stream console (last 10 tokens)
+
+────────────────────────────────────────────────────────────────
+🐛 TROUBLESHOOTING
+────────────────────────────────────────────────────────────────
+
+ISSUE: "Notification doesn't go away"
+FIX: Click "♻️ Reload Data" in sidebar
+
+ISSUE: "Tabs showing old data"
+FIX 1: Click "🔄 Sync Tabs"
+FIX 2: Switch Data Source to refresh
+
+ISSUE: "Verification button does nothing"
+CAUSE: No trace captured yet
+FIX: Capture a trace first (any method)
+
+ISSUE: "Latest Trace option missing"
+CAUSE: No trace has been verified yet
+FIX: Click "🔐 Verify with BoR" after capture
+
+ISSUE: "Can't see new trace in other tabs"
+FIX: Switch Data Source to "Latest Trace"
+
+ISSUE: "Model compatibility warning"
+CAUSE: Your model (gpt-5-nano) doesn't expose reasoning
+FIX: Use Mock Traces for full BoR verification
+
+────────────────────────────────────────────────────────────────
+📊 WHAT GETS SYNCHRONIZED
+────────────────────────────────────────────────────────────────
+
+When you capture a trace, these are automatically updated:
+✅ st.session_state["latest_trace_session"] = <session_id>
+✅ st.session_state["latest_verification_time"] = <timestamp>
+
+When you verify, this is updated:
+✅ st.session_state["data_source"] = "bor_inputs/visual_data_trace.json"
+
+All tabs read from session_state, so they stay synchronized!
+
+────────────────────────────────────────────────────────────────
+🎬 DEMO SCRIPT
+────────────────────────────────────────────────────────────────
+
+FULL DEMO (5 minutes):
+──────────────────────
+
+1. Launch: streamlit run interactive_visual_dashboard.py
+
+2. Go to 🤖 LLM Sandbox
+
+3. Enter prompt:
+   "Explain quantum computing in simple terms"
+
+4. ✓ Enable "🔴 Live Trust Diagnostics"
+   ✓ Enable "⚙️ Auto-Verify after Capture"
+
+5. Click "🎭 Stream Mock"
+
+6. Watch:
+   • Tokens stream in real-time
+   • Trust score updates live
+   • Hallucination alerts appear
+   • Console shows token details
+
+7. After streaming completes:
+   • Auto-verification runs
+   • Info message appears
+
+8. Sidebar → Data Source → "Latest Trace"
+
+9. Visit each tab:
+   • 🧠 Reasoning Flow - See trace graph
+   • 🚨 Hallucination Monitor - View metrics
+   • 🔐 Cryptographic Chain - Check hashes
+
+10. Return to Sandbox
+
+11. Capture another trace (any method)
+
+12. Notice:
+    • Notification updates
+    • New session ID displayed
+    • Can switch between traces
+
+13. Done! You've seen the full pipeline.
+
+────────────────────────────────────────────────────────────────
+✅ CHECKLIST
+────────────────────────────────────────────────────────────────
+
+Before reporting issues, verify:
+□ Dashboard launches without errors
+□ Mock trace generates successfully
+□ Notification banner appears after capture
+□ Session ID shown in notification
+□ "Latest Trace" option appears after verification
+□ Switching data source refreshes all tabs
+□ Sync buttons work (♻️ and 🔄)
+□ No linter errors in terminal
+
+────────────────────────────────────────────────────────────────
+📞 NEXT STEPS
+────────────────────────────────────────────────────────────────
+
+You've completed:
+✅ Step 12A - Basic trace capture
+✅ Step 12B - BoR verification
+✅ Step 12C - Real-time streaming
+✅ Step 12C-A - Tab synchronization
+
+What's working:
+• End-to-end LLM trace capture
+• Real-time trust diagnostics
+• Cryptographic verification
+• Cross-tab data flow
+• Session state management
+
+Ready for:
+• Production use
+• Multi-trace analysis
+• Live hallucination monitoring
+• Research and development
+
+═══════════════════════════════════════════════════════════════
+

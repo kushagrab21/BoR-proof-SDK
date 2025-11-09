@@ -1,0 +1,25 @@
+{
+  "session_id": "ad59d167855ad78c...",
+  "masters": [
+    {
+      "cert_id": "MASTER_CERTIFICATE_1762644754",
+      "aggregated_hash_prefix": "2fb502cf",
+      "step_count": 1,
+      "verification_status": "VERIFIED",
+      "steps": [
+        "02d0a5ab"
+      ]
+    },
+    {
+      "cert_id": "MASTER_CERTIFICATE_1762644770",
+      "aggregated_hash_prefix": "d3fb0c4e",
+      "step_count": 3,
+      "verification_status": "VERIFIED",
+      "steps": [
+        "02d0a5ab",
+        "da3d01a0",
+        "9d3f74a5"
+      ]
+    }
+  ]
+}

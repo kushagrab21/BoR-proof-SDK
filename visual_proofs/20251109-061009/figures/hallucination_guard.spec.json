@@ -1,0 +1,62 @@
+{
+  "steps": [
+    {
+      "step_number": 1,
+      "semantic_similarity": 0.788,
+      "entropy_change": 0.0,
+      "logical_consistency": 1.0,
+      "token_overlap": 0.19,
+      "status": "yellow"
+    },
+    {
+      "step_number": 2,
+      "semantic_similarity": 0.76,
+      "entropy_change": 0.0,
+      "logical_consistency": 1.0,
+      "token_overlap": 0.133,
+      "status": "red"
+    },
+    {
+      "step_number": 3,
+      "semantic_similarity": 0.453,
+      "entropy_change": 0.603,
+      "logical_consistency": 0.041,
+      "token_overlap": 0.091,
+      "status": "red"
+    },
+    {
+      "step_number": 4,
+      "semantic_similarity": 0.333,
+      "entropy_change": 0.039,
+      "logical_consistency": 0.045,
+      "token_overlap": 0.089,
+      "status": "red"
+    },
+    {
+      "step_number": 5,
+      "semantic_similarity": 0.382,
+      "entropy_change": 0.0,
+      "logical_consistency": 1.0,
+      "token_overlap": 0.148,
+      "status": "red"
+    }
+  ],
+  "thresholds": {
+    "semantic_similarity": {
+      "green": 0.75,
+      "yellow": 0.5
+    },
+    "entropy_change": {
+      "green": 0.2,
+      "yellow": 0.5
+    },
+    "logical_consistency": {
+      "green": 0.7,
+      "yellow": 0.5
+    },
+    "token_overlap": {
+      "green": 0.3,
+      "yellow": 0.15
+    }
+  }
+}

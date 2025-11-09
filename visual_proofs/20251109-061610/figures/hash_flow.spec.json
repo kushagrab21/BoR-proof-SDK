@@ -1,0 +1,31 @@
+{
+  "nodes_from_steps": [
+    "02d0a5ab",
+    "da3d01a0",
+    "9d3f74a5",
+    "5af88252",
+    "62ef0e92"
+  ],
+  "nodes_from_masters": [],
+  "all_nodes": [
+    "02d0a5ab",
+    "da3d01a0",
+    "9d3f74a5",
+    "952ac19b",
+    "5af88252",
+    "fa1a19b4",
+    "62ef0e92"
+  ],
+  "edges": [
+    {
+      "parent": "952ac19b",
+      "child": "9d3f74a5"
+    },
+    {
+      "parent": "fa1a19b4",
+      "child": "5af88252"
+    }
+  ],
+  "edges_filtered_by_session": true,
+  "master_nodes": []
+}

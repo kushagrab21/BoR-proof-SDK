@@ -1,0 +1,175 @@
+═══════════════════════════════════════════════════════════════
+  📊 BoR-SDK Interactive Dashboard Guide
+═══════════════════════════════════════════════════════════════
+
+🎯 PURPOSE
+──────────────────────────────────────────────────────────────
+This dashboard visualizes and verifies LLM reasoning traces with
+cryptographic proofs and hallucination detection.
+
+═══════════════════════════════════════════════════════════════
+📑 TABS EXPLAINED
+═══════════════════════════════════════════════════════════════
+
+1️⃣ 🧠 REASONING FLOW
+──────────────────────────────────────────────────────────────
+WHAT: Interactive graph showing reasoning chain
+USE CASE: Visualize how prompts/responses connect
+WORKS BEST WITH: Multi-step reasoning traces (2+ steps)
+
+📌 Single Step?
+   - Graph will show 1 node (minimal visualization)
+   - Use 🤖 LLM Sandbox to capture longer conversations
+   - Or load existing multi-step proofs
+
+2️⃣ 🚨 HALLUCINATION MONITOR
+──────────────────────────────────────────────────────────────
+WHAT: Real-time metrics dashboard
+METRICS:
+   • Semantic Similarity (prompt-response alignment)
+   • Entropy Change (information drift)
+   • Logical Consistency (reasoning coherence)
+   • Token Overlap (grounding verification)
+
+USE CASE: Detect potential hallucinations in reasoning
+WORKS BEST WITH: Multiple steps for trend analysis
+
+3️⃣ 🔐 CRYPTOGRAPHIC CHAIN
+──────────────────────────────────────────────────────────────
+WHAT: Hash chain verification table
+SHOWS:
+   • Chain hash (cryptographic fingerprint)
+   • Parent hash (linkage to previous step)
+   • Status (green/yellow/red)
+   • Timestamp
+
+USE CASE: Verify tamper-evidence and integrity
+WORKS WITH: Any number of steps (1+)
+
+4️⃣ ✅ VERIFICATION
+──────────────────────────────────────────────────────────────
+WHAT: Summary of verification results
+SHOWS:
+   • Checks passed/failed
+   • Trust diagnostics
+   • Root-cause analysis
+   • Session metadata
+
+USE CASE: Overall trust assessment
+WORKS WITH: Verified traces (after Step 12B)
+
+5️⃣ 🤖 LLM SANDBOX
+──────────────────────────────────────────────────────────────
+WHAT: Interactive LLM trace capture
+MODES:
+   • Standard Capture: Static trace collection
+   • 🔴 Live Diagnostics: Real-time trust monitoring
+
+USE CASE: Create new traces for verification
+OPTIONS:
+   • Real API (OpenAI)
+   • Mock traces (no API needed)
+   • Auto-verify after capture
+
+═══════════════════════════════════════════════════════════════
+🔧 CURRENT DATA SOURCE
+═══════════════════════════════════════════════════════════════
+
+The dashboard loads data from: visual_data.json
+
+📂 Data Sources:
+   1. proofs/ — Existing BoR proof files
+   2. bor_inputs/visual_data_trace.json — Converted LLM traces
+
+To switch data sources:
+   • Run: make extract (for proofs/)
+   • Or: Verify a trace in 🤖 LLM Sandbox (creates bor_inputs/)
+
+═══════════════════════════════════════════════════════════════
+💡 TIPS FOR BETTER VISUALIZATION
+═══════════════════════════════════════════════════════════════
+
+Single Step Issue:
+   Problem: Graph looks empty with 1 step
+   Solution:
+      1. Go to 🤖 LLM Sandbox tab
+      2. Enable "🔴 Live Trust Diagnostics"
+      3. Enter: "Let's solve a math problem step by step"
+      4. Click "🎭 Stream Mock" (no API needed)
+      5. Let it generate ~10-20 tokens
+      6. Click "♻️ Reload Data" in sidebar
+      7. Return to 🧠 Reasoning Flow
+
+Multi-Step Capture:
+   • Use conversational prompts
+   • Ask follow-up questions
+   • Enable longer max_tokens (500+)
+
+═══════════════════════════════════════════════════════════════
+🚀 QUICK START WORKFLOWS
+═══════════════════════════════════════════════════════════════
+
+WORKFLOW 1: View Existing Proofs
+────────────────────────────────
+1. Run: make extract
+2. Open dashboard
+3. Browse tabs 1-4
+4. View reasoning chains, metrics, verification
+
+WORKFLOW 2: Capture New Trace
+────────────────────────────────
+1. Open dashboard
+2. Go to tab 5 (🤖 LLM Sandbox)
+3. Enter prompt
+4. Click "🎭 Stream Mock" (or real API)
+5. View results
+6. Click "🔐 Verify with BoR"
+7. Return to tab 1 to see graph
+
+WORKFLOW 3: Real-Time Monitoring
+────────────────────────────────
+1. Go to tab 5 (🤖 LLM Sandbox)
+2. Enable "🔴 Live Trust Diagnostics"
+3. Enter prompt
+4. Click "🔴 Stream with Live Diagnostics"
+5. Watch metrics update in real-time
+6. See trust scores per token
+
+═══════════════════════════════════════════════════════════════
+❓ TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════
+
+Q: Graph not showing?
+A: Check if you have multi-step data. Single steps show minimal graph.
+
+Q: "No reasoning steps found"?
+A: Run `make extract` or capture a trace in LLM Sandbox
+
+Q: Metrics all "None"?
+A: Data hasn't been verified yet. Click "🔐 Verify with BoR"
+
+Q: Empty charts?
+A: Need guards computed. Run:
+   python compute_hallucination_guards.py --input visual_data.json
+
+Q: Want to reset?
+A: Click "♻️ Reload Data" in sidebar
+
+═══════════════════════════════════════════════════════════════
+📊 SIDEBAR STATISTICS
+═══════════════════════════════════════════════════════════════
+
+Total Steps: Number of reasoning steps in loaded data
+Sessions: Unique conversation sessions
+Masters: Aggregated certificates
+🟢🟡🔴 Counts: Trust status distribution
+
+═══════════════════════════════════════════════════════════════
+🎨 CUSTOMIZATION
+═══════════════════════════════════════════════════════════════
+
+Theme: Dark (default) or Light (coming soon)
+Data Source: Switch via file selection or extraction
+Filters: Use root-cause filters in Hallucination Monitor
+
+═══════════════════════════════════════════════════════════════

@@ -1,0 +1,65 @@
+═══════════════════════════════════════════════════════════════
+  🤖 Model Compatibility Guide - BoR-SDK
+═══════════════════════════════════════════════════════════════
+
+OPENAI MODEL SUPPORT
+────────────────────────────────────────────────────────────────
+
+✅ FULLY SUPPORTED (with logprobs):
+   • gpt-4-turbo
+   • gpt-3.5-turbo
+   • gpt-4
+   • gpt-4o (most recent)
+
+⚠️  PARTIAL SUPPORT (no logprobs):
+   • gpt-4o-mini
+   • gpt-4o (older versions)
+   
+❌ NOT SUPPORTED (reasoning models - hidden output):
+   • gpt-5-nano-2025-08-07
+   • o1-preview
+   • o1-mini
+   
+   These models use hidden reasoning tokens and don't expose
+   the actual reasoning process, making them incompatible with
+   BoR trace verification.
+
+RECOMMENDED MODEL
+────────────────────────────────────────────────────────────────
+
+For BoR SDK: gpt-4-turbo or gpt-4o (latest)
+
+These provide:
+  ✅ Token-level logprobs
+  ✅ Full response content
+  ✅ Temperature control
+  ✅ Standard parameter support
+
+WORKAROUND FOR YOUR SETUP
+────────────────────────────────────────────────────────────────
+
+Since gpt-5-nano-2025-08-07 is not compatible, use:
+
+1. MOCK TRACES (Recommended for testing):
+   - Go to 🤖 LLM Sandbox tab
+   - Click "🎭 Stream Mock" or "🎭 Generate Mock Trace"
+   - No API needed, full features available
+
+2. REQUEST ACCESS to compatible models:
+   - Contact OpenAI support
+   - Request access to gpt-4-turbo or gpt-4o
+   - Update .env file when approved
+
+3. USE EXISTING PROOFS:
+   - Run: make extract
+   - View existing BoR proofs in dashboard
+
+CURRENT STATUS
+────────────────────────────────────────────────────────────────
+
+Your account has access to: gpt-5-nano-2025-08-07
+Compatible with BoR SDK: ❌ No
+
+Action: Use mock traces for development and testing
+
+═══════════════════════════════════════════════════════════════

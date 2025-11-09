@@ -1,0 +1,39 @@
+{
+  "timestamp": 1762681794.567861,
+  "checks_passed": 5,
+  "checks_failed": 0,
+  "checks_warned": 0,
+  "details": [
+    {
+      "check_name": "hash_correspondence",
+      "status": "pass",
+      "message": "All 5 steps have matching hashes and status",
+      "evidence": "Verified 5 reasoning steps"
+    },
+    {
+      "check_name": "node_count_match",
+      "status": "pass",
+      "message": "Step node counts match: 5 step nodes",
+      "evidence": "Verified 5 step nodes (0 master nodes, 7 total)"
+    },
+    {
+      "check_name": "chain_integrity",
+      "status": "pass",
+      "message": "Chain edges match: 2 edges verified",
+      "evidence": "All parent\u2192child links validated"
+    },
+    {
+      "check_name": "guard_status_accuracy",
+      "status": "pass",
+      "message": "All 5 steps have accurate guard metrics",
+      "evidence": "Verified 4 metrics \u00d7 5 steps"
+    },
+    {
+      "check_name": "determinism_verification",
+      "status": "pass",
+      "message": "No duplicate steps, 2 master certs validated",
+      "evidence": "5 unique steps verified"
+    }
+  ],
+  "overall_status": "VERIFIED"
+}

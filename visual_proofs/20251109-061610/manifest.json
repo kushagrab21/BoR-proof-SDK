@@ -1,0 +1,16 @@
+{
+  "timestamp": "2025-11-09T00:46:26Z",
+  "pipeline_version": "1.0.0",
+  "strict_mode": true,
+  "session_id": "null",
+  "artifacts": [
+    "visual_data.json",
+    "visual_verification_report.json",
+    "visual_proof.md",
+    "figures/reasoning_chain.svg",
+    "figures/hash_flow.png",
+    "figures/hallucination_guard.png",
+    "figures/master_certificate_tree.svg",
+    "figures/*.spec.json"
+  ]
+}

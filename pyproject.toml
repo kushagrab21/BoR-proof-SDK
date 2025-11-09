@@ -30,10 +30,10 @@ classifiers = [
 license-files = ["LICENSE"]
 
 [project.urls]
-Homepage = "https://github.com/kushagrab21/BoR-proof-SDK"
-Documentation = "https://github.com/kushagrab21/BoR-proof-SDK#readme"
-Issues = "https://github.com/kushagrab21/BoR-proof-SDK/issues"
-Repository = "https://github.com/kushagrab21/BoR-proof-SDK"
+Homepage = "https://github.com/kushagrab21/BOR-application"
+Documentation = "https://github.com/kushagrab21/BOR-application#readme"
+Issues = "https://github.com/kushagrab21/BOR-application/issues"
+Repository = "https://github.com/kushagrab21/BOR-application"
 
 [project.scripts]
 borp = "bor.cli:main"

@@ -1,0 +1,163 @@
+═══════════════════════════════════════════════════════════════
+  STEP 12B - BoR Verification Integration — Quick Reference
+═══════════════════════════════════════════════════════════════
+
+✅ IMPLEMENTATION COMPLETE
+
+────────────────────────────────────────────────────────────────
+📋 WHAT WAS IMPLEMENTED
+────────────────────────────────────────────────────────────────
+
+1. extract_trace_for_bor.py
+   • Converts LLM traces to BoR visual_data.json format
+   • Preserves token-level information
+   • Computes cryptographic hashes
+   • Validates chain integrity
+
+2. verify_trace.sh
+   • One-command verification pipeline
+   • Runs extraction → guards → visualization
+   • Shows summary statistics
+
+3. Dashboard Integration
+   • "Verify with BoR" button in LLM Sandbox
+   • 3-step verification process with progress
+   • Results display with trust metrics
+   • Works for fresh captures and historical traces
+
+4. Test Suite
+   • test_step12b.py validates full pipeline
+   • All tests passing
+
+────────────────────────────────────────────────────────────────
+🚀 HOW TO USE
+────────────────────────────────────────────────────────────────
+
+METHOD 1: Dashboard UI (Recommended)
+────────────────────────────────────
+1. Run: streamlit run interactive_visual_dashboard.py
+2. Go to "🤖 LLM Sandbox" tab
+3. Capture a trace (mock or real)
+4. Click "🔐 Verify with BoR"
+5. View results inline
+
+METHOD 2: Command Line
+──────────────────────
+# Using session ID
+./verify_trace.sh <session_id>
+
+# Using trace file
+./verify_trace.sh --trace llm_traces/trace_<id>.json
+
+# Python API
+python extract_trace_for_bor.py --session <session_id>
+python compute_hallucination_guards.py --input bor_inputs/visual_data_trace.json
+python generate_all_visualizations.py --visual-data bor_inputs/visual_data_trace.json
+
+────────────────────────────────────────────────────────────────
+📊 VERIFICATION RESULTS
+────────────────────────────────────────────────────────────────
+
+After verification, you get:
+
+FILES:
+  • bor_inputs/visual_data_trace.json — BoR-formatted trace
+  • figures/reasoning_chain.svg        — Reasoning graph
+  • figures/hash_flow.png              — Hash chain diagram
+  • figures/hallucination_guard.png    — Guard metrics
+
+DATA STRUCTURE:
+  • Cryptographic hashes (chain_hash, parent_hash)
+  • Guard states (semantic, entropy, logic, token overlap)
+  • Trust diagnostics (score, label, root causes)
+  • Token-level traces (index, token, logprob, probability)
+
+METRICS:
+  • Total Steps
+  • 🟢 Trusted / 🟡 Review / 🔴 Untrusted counts
+  • Alert rate (%)
+  • Chain validity
+
+────────────────────────────────────────────────────────────────
+🧪 TESTING
+────────────────────────────────────────────────────────────────
+
+Run test suite:
+  python test_step12b.py
+
+Expected output:
+  ✅ TEST 1: Trace Extraction
+  ✅ TEST 2: CLI Verification Script  
+  ✅ TEST 3: Verification Results
+  ✅ TEST 4: Dashboard Integration
+
+────────────────────────────────────────────────────────────────
+🔗 INTEGRATION POINTS
+────────────────────────────────────────────────────────────────
+
+trace_collector.py → extract_trace_for_bor.py → visual_data.json
+                                                      ↓
+                         compute_hallucination_guards.py
+                                                      ↓
+                         generate_all_visualizations.py
+                                                      ↓
+                             figures/ + dashboard
+
+────────────────────────────────────────────────────────────────
+📁 FILES CREATED/MODIFIED
+────────────────────────────────────────────────────────────────
+
+NEW FILES:
+  • extract_trace_for_bor.py       — Trace converter
+  • verify_trace.sh                — CLI verification script
+  • test_step12b.py                — Test suite
+  • bor_inputs/                    — Output directory
+  • STEP12B_QUICK_REFERENCE.txt    — This file
+
+MODIFIED FILES:
+  • interactive_visual_dashboard.py — Added verification UI
+  • .gitignore                      — Added bor_inputs/
+
+────────────────────────────────────────────────────────────────
+🎯 KEY FEATURES
+────────────────────────────────────────────────────────────────
+
+✅ Token-level trace preservation
+✅ Cryptographic hash chaining
+✅ One-click verification from UI
+✅ CLI automation support
+✅ Visualization generation
+✅ Trust diagnostics integration
+✅ Session history verification
+✅ Mock trace support (no API needed)
+
+────────────────────────────────────────────────────────────────
+🚧 KNOWN LIMITATIONS
+────────────────────────────────────────────────────────────────
+
+• Hallucination guards require ML models (may not run in all envs)
+• Chunking strategy (10 tokens) is configurable but fixed
+• Single-session verification (no batch mode yet)
+
+────────────────────────────────────────────────────────────────
+🔜 NEXT: STEP 12C
+────────────────────────────────────────────────────────────────
+
+Step 12C will add:
+  • Real-time trust diagnostics during trace capture
+  • Live hallucination detection
+  • Interactive trust score visualization
+  • Root-cause analysis UI
+
+────────────────────────────────────────────────────────────────
+💡 TIPS
+────────────────────────────────────────────────────────────────
+
+• Use mock traces to test without API costs
+• Check bor_inputs/ for detailed JSON output
+• figures/ contains ready-to-share visualizations
+• Verify historical traces anytime from trace history
+• Chain validity indicates tamper-evidence
+
+═══════════════════════════════════════════════════════════════
+

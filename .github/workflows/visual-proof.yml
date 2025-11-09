@@ -1,0 +1,133 @@
+name: Visual Proof Pipeline CI
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  visual-proof:
+    name: Generate and Verify Visual Proofs
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt', 'requirements-viz.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz
+      
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-viz.txt
+      
+      - name: Run visual proof pipeline (strict mode)
+        run: |
+          make visualize-strict
+      
+      - name: Verify artifacts exist
+        run: |
+          test -f visual_data.json || exit 1
+          test -f visual_verification_report.json || exit 1
+          test -f docs/visual_proof.md || exit 1
+          test -d figures/ || exit 1
+          echo "✅ All required artifacts present"
+      
+      - name: Display verification status
+        run: |
+          echo "=== Verification Report ==="
+          cat visual_verification_report.json | python -c "import sys, json; d=json.load(sys.stdin); print(f'Status: {d[\"overall_status\"]}'); print(f'Passed: {d[\"checks_passed\"]}'); print(f'Warned: {d[\"checks_warned\"]}'); print(f'Failed: {d[\"checks_failed\"]}')"
+      
+      - name: Find latest bundle directory
+        id: find_bundle
+        run: |
+          if [ -d visual_proofs ]; then
+            LATEST=$(ls -td visual_proofs/*/ | head -1)
+            echo "bundle_dir=${LATEST}" >> $GITHUB_OUTPUT
+            echo "Found bundle: ${LATEST}"
+          else
+            echo "No bundle directory found"
+            echo "bundle_dir=" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Upload visual proof artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-proof-${{ matrix.python-version }}-${{ github.run_id }}
+          path: |
+            ${{ steps.find_bundle.outputs.bundle_dir }}
+            visual_data.json
+            visual_verification_report.json
+            docs/visual_proof.md
+            figures/*.svg
+            figures/*.png
+            figures/*.spec.json
+          retention-days: 30
+          if-no-files-found: warn
+      
+      - name: Comment on PR (if applicable)
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let report = {};
+            try {
+              report = JSON.parse(fs.readFileSync('visual_verification_report.json', 'utf8'));
+            } catch (e) {
+              console.log('Could not read verification report');
+              return;
+            }
+            
+            const status = report.overall_status;
+            const emoji = status === 'VERIFIED' ? '✅' : (status === 'PARTIAL' ? '⚠️' : '❌');
+            
+            const comment = `## ${emoji} Visual Proof Pipeline Results
+            
+            **Verification Status**: ${status}
+            
+            | Check | Result |
+            |-------|--------|
+            | Passed | ${report.checks_passed} |
+            | Warned | ${report.checks_warned} |
+            | Failed | ${report.checks_failed} |
+            
+            <details>
+            <summary>View detailed checks</summary>
+            
+            ${report.details.map(d => `- **${d.check_name}**: ${d.status.toUpperCase()} - ${d.message}`).join('\n')}
+            
+            </details>
+            
+            Artifacts available for download from the workflow run.
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+

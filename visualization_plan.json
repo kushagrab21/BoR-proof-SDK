@@ -1,0 +1,589 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "purpose": "Visual proof-of-cognition pipeline for BoR-SDK verification flow",
+    "target_audience": ["developers", "auditors", "researchers"],
+    "last_updated": "2025-11-08"
+  },
+  
+  "stages": [
+    "data_extraction",
+    "visualization",
+    "verification",
+    "assembly"
+  ],
+  
+  "data_extraction": {
+    "script": "extract_trace_data.py",
+    "description": "Extracts canonical reasoning trace from certificate chain",
+    "inputs": {
+      "proof_directory": "proofs/",
+      "file_patterns": [
+        "reasoning_cert_step_*.json",
+        "MASTER_CERTIFICATE_*.json",
+        "session_*_manifest.json"
+      ]
+    },
+    "outputs": {
+      "primary": "visual_data.json",
+      "schema": {
+        "steps": [
+          {
+            "step_number": "integer",
+            "timestamp": "unix_timestamp",
+            "prompt": "string",
+            "response": "string",
+            "hash_prompt": "sha256_hex",
+            "hash_response": "sha256_hex",
+            "chain_hash": "sha256_hex",
+            "parent_hash": "sha256_hex",
+            "guard_state": {
+              "semantic_similarity": "float [0,1]",
+              "entropy_change": "float",
+              "logical_consistency": "float [0,1]",
+              "status": "enum[green, yellow, red]",
+              "triggered_guards": "array[string]"
+            },
+            "metadata": {
+              "execution_time_ms": "float",
+              "model": "string",
+              "deterministic": "boolean"
+            }
+          }
+        ],
+        "master_certificates": [
+          {
+            "cert_id": "string",
+            "timestamp": "unix_timestamp",
+            "aggregated_hash": "sha256_hex",
+            "step_count": "integer",
+            "verification_status": "string"
+          }
+        ],
+        "session_info": {
+          "session_id": "string",
+          "total_steps": "integer",
+          "start_time": "unix_timestamp",
+          "end_time": "unix_timestamp"
+        }
+      }
+    },
+    "extraction_logic": {
+      "parse_certificates": "Load all JSON certificates chronologically",
+      "extract_hashes": "Pull SHA-256 hashes from each step",
+      "compute_guards": "Calculate semantic similarity, entropy, consistency metrics",
+      "build_chain": "Link steps via parent_hash → chain_hash edges",
+      "validate_integrity": "Verify hash chain before extraction completes"
+    }
+  },
+  
+  "visualization": {
+    "libraries": [
+      "matplotlib>=3.7.0",
+      "networkx>=3.0",
+      "seaborn>=0.12.0",
+      "plotly>=5.14.0",
+      "graphviz>=0.20.0"
+    ],
+    "figures": [
+      {
+        "name": "reasoning_chain.svg",
+        "type": "sequential_flow",
+        "description": "End-to-end reasoning flow showing prompt→response→hash progression",
+        "visual_elements": {
+          "nodes": "Rounded rectangles for prompts/responses",
+          "edges": "Arrows labeled with hash prefixes (first 8 chars)",
+          "colors": {
+            "prompt": "#4A90E2",
+            "response": "#7ED321",
+            "hash": "#F5A623",
+            "guard_green": "#50E3C2",
+            "guard_yellow": "#F8E71C",
+            "guard_red": "#D0021B"
+          },
+          "layout": "Top-to-bottom directed graph"
+        },
+        "data_source": "visual_data.json → steps[]",
+        "implementation": {
+          "library": "graphviz + networkx",
+          "format": "SVG (scalable vector graphics)",
+          "dimensions": "1200x2400px",
+          "annotations": "Step numbers, hash prefixes, guard status badges"
+        }
+      },
+      {
+        "name": "hash_flow.png",
+        "type": "hash_propagation",
+        "description": "Visual proof of cryptographic hash chaining across reasoning steps",
+        "visual_elements": {
+          "nodes": "Hexagonal nodes for hash values",
+          "edges": "Directed edges showing parent_hash → chain_hash links",
+          "highlights": "Bold borders for master certificate aggregation points",
+          "labels": "Full SHA-256 hashes (truncated in display, full in tooltip)"
+        },
+        "data_source": "visual_data.json → steps[].chain_hash + parent_hash",
+        "implementation": {
+          "library": "networkx + matplotlib",
+          "format": "PNG (high DPI, 300)",
+          "dimensions": "1600x1200px",
+          "annotations": "Hash collision indicators (if any), verification checkmarks"
+        }
+      },
+      {
+        "name": "hallucination_guard.png",
+        "type": "status_timeline",
+        "description": "Temporal visualization of hallucination guard triggers across reasoning chain",
+        "visual_elements": {
+          "x_axis": "Step number (chronological)",
+          "y_axis": "Guard metric values (normalized 0-1)",
+          "series": [
+            {
+              "name": "semantic_similarity",
+              "color": "#4A90E2",
+              "line_style": "solid"
+            },
+            {
+              "name": "entropy_change",
+              "color": "#F5A623",
+              "line_style": "dashed"
+            },
+            {
+              "name": "logical_consistency",
+              "color": "#7ED321",
+              "line_style": "dotted"
+            }
+          ],
+          "thresholds": {
+            "green_zone": "[0.8, 1.0]",
+            "yellow_zone": "[0.5, 0.8)",
+            "red_zone": "[0, 0.5)"
+          },
+          "markers": "Red circles on steps where guards triggered"
+        },
+        "data_source": "visual_data.json → steps[].guard_state",
+        "implementation": {
+          "library": "matplotlib + seaborn",
+          "format": "PNG (high DPI, 300)",
+          "dimensions": "1600x900px",
+          "annotations": "Guard trigger labels, threshold bands"
+        }
+      },
+      {
+        "name": "determinism_plot.png",
+        "type": "consistency_proof",
+        "description": "Hash-replay consistency verification showing deterministic re-execution",
+        "visual_elements": {
+          "comparison_mode": "Side-by-side bar chart",
+          "x_axis": "Step number",
+          "y_axis": "Hash match indicator (binary: match=1, mismatch=0)",
+          "bars": {
+            "original_run": "#4A90E2",
+            "replay_run": "#7ED321",
+            "match_indicator": "✓ overlay when hashes align"
+          },
+          "summary_panel": "Top-right corner: X/Y steps matched, Z% determinism"
+        },
+        "data_source": "Comparison of visual_data.json with replay run data",
+        "implementation": {
+          "library": "matplotlib",
+          "format": "PNG (high DPI, 300)",
+          "dimensions": "1400x800px",
+          "annotations": "Determinism percentage, mismatch highlights (if any)"
+        }
+      },
+      {
+        "name": "master_certificate_tree.svg",
+        "type": "hierarchical_aggregation",
+        "description": "Tree showing how step certificates roll up into master certificates",
+        "visual_elements": {
+          "root": "Session manifest (top)",
+          "branches": "Master certificates (middle tier)",
+          "leaves": "Individual reasoning step certificates (bottom)",
+          "colors": "Gradient from dark (root) to light (leaves)",
+          "annotations": "Aggregated hash labels on each node"
+        },
+        "data_source": "visual_data.json → master_certificates[] + steps[]",
+        "implementation": {
+          "library": "graphviz",
+          "format": "SVG",
+          "dimensions": "2000x1600px",
+          "annotations": "Certificate IDs, step counts, verification badges"
+        }
+      }
+    ],
+    "interactive_dashboard": {
+      "enabled": true,
+      "script": "generate_interactive_dashboard.py",
+      "framework": "plotly + dash",
+      "output": "docs/interactive_proof.html",
+      "features": [
+        "Zoomable reasoning chain graph",
+        "Hover tooltips with full hash values",
+        "Guard status filter (show only red/yellow steps)",
+        "Timeline scrubber for step-by-step replay",
+        "Export to PDF with verification watermark"
+      ]
+    }
+  },
+  
+  "verification": {
+    "script": "verify_visual_integrity.py",
+    "description": "Ensures visualized data exactly matches cryptographic proof chain",
+    "checks": [
+      {
+        "name": "hash_correspondence",
+        "description": "Every hash in figures must match visual_data.json",
+        "method": "Extract text from SVG/PNG, regex match SHA-256 patterns, cross-reference"
+      },
+      {
+        "name": "node_count_match",
+        "description": "Number of visual nodes equals number of certificate steps",
+        "method": "Count graph nodes in reasoning_chain.svg, compare to visual_data.json step count"
+      },
+      {
+        "name": "chain_integrity",
+        "description": "Parent-child hash links in visualization match certificate chain",
+        "method": "Traverse hash_flow.png edges, validate against visual_data.json chain"
+      },
+      {
+        "name": "guard_status_accuracy",
+        "description": "Guard colors in visualizations match computed guard states",
+        "method": "Parse hallucination_guard.png pixel colors, verify against guard_state.status"
+      },
+      {
+        "name": "determinism_verification",
+        "description": "Replay hashes in determinism_plot.png match original hashes",
+        "method": "Compare hash values in plot with visual_data.json, ensure 100% match"
+      }
+    ],
+    "outputs": {
+      "verification_report": "visual_verification_report.json",
+      "schema": {
+        "timestamp": "unix_timestamp",
+        "checks_passed": "integer",
+        "checks_failed": "integer",
+        "details": [
+          {
+            "check_name": "string",
+            "status": "enum[pass, fail, warn]",
+            "message": "string",
+            "evidence": "string"
+          }
+        ],
+        "overall_status": "enum[VERIFIED, FAILED, PARTIAL]"
+      }
+    },
+    "watermark": {
+      "enabled": true,
+      "text": "VERIFIED VISUAL TRACE",
+      "condition": "All checks pass",
+      "placement": "Bottom-right corner of each figure",
+      "style": {
+        "font": "Arial Bold",
+        "size": "14pt",
+        "color": "#50E3C2",
+        "opacity": "0.7"
+      }
+    }
+  },
+  
+  "assembly": {
+    "document": "docs/visual_proof.md",
+    "description": "Human-readable visual proof document with embedded figures",
+    "structure": [
+      {
+        "section": "Introduction",
+        "content": "Overview of BoR-SDK proof-of-cognition system and visual verification approach"
+      },
+      {
+        "section": "Reasoning Chain",
+        "figure": "reasoning_chain.svg",
+        "caption": "Complete reasoning trace showing prompt-response progression with cryptographic hash chaining. Each node represents a verified reasoning step.",
+        "explanation": "This diagram illustrates how each reasoning step is cryptographically linked via SHA-256 hashes, creating an immutable audit trail."
+      },
+      {
+        "section": "Hash Propagation Proof",
+        "figure": "hash_flow.png",
+        "caption": "Cryptographic hash propagation across the reasoning chain. Directed edges show parent_hash → chain_hash relationships.",
+        "explanation": "The hash flow demonstrates tamper-evidence: any modification to a step would break the chain, immediately detectable during verification."
+      },
+      {
+        "section": "Hallucination Guard Trace",
+        "figure": "hallucination_guard.png",
+        "caption": "Temporal visualization of hallucination detection metrics. Green zone indicates high confidence, yellow indicates caution, red indicates potential hallucination.",
+        "explanation": [
+          "**Semantic Similarity**: Measures alignment between prompt and response",
+          "**Entropy Change**: Detects sudden information content shifts (hallucination indicator)",
+          "**Logical Consistency**: Validates reasoning coherence across steps",
+          "Guards trigger warnings when metrics drop below thresholds, preventing hallucinations from propagating."
+        ]
+      },
+      {
+        "section": "Determinism Replay Proof",
+        "figure": "determinism_plot.png",
+        "caption": "Hash-replay consistency verification. Bars show original vs. replay run hash matches, proving deterministic execution.",
+        "explanation": "Determinism is verified by re-executing the reasoning chain and comparing hashes. 100% match rate proves reproducible, deterministic cognition."
+      },
+      {
+        "section": "Certificate Hierarchy",
+        "figure": "master_certificate_tree.svg",
+        "caption": "Hierarchical aggregation of step certificates into master certificates and session manifests.",
+        "explanation": "Master certificates aggregate multiple step proofs, creating efficient verification checkpoints. Session manifests provide top-level integrity validation."
+      },
+      {
+        "section": "Interactive Proof Explorer",
+        "link": "interactive_proof.html",
+        "description": "Open the interactive dashboard to explore the full reasoning trace with zoom, filter, and hover capabilities."
+      },
+      {
+        "section": "Verification Report",
+        "content": "Embed visual_verification_report.json summary showing all integrity checks passed"
+      }
+    ],
+    "metadata": {
+      "auto_generated": true,
+      "generation_script": "assemble_visual_proof.py",
+      "update_trigger": "After new certificates are generated"
+    }
+  },
+  
+  "hallucination_guards": {
+    "description": "Multi-layered hallucination detection system integrated into reasoning verification",
+    "metrics": {
+      "semantic_similarity": {
+        "description": "Cosine similarity between prompt embedding and response embedding",
+        "computation": "Use sentence-transformers (all-MiniLM-L6-v2) to encode prompt and response, compute cosine similarity",
+        "thresholds": {
+          "green": "≥ 0.75",
+          "yellow": "0.50 - 0.74",
+          "red": "< 0.50"
+        },
+        "interpretation": "Low similarity suggests response diverged from prompt intent (possible hallucination)"
+      },
+      "entropy_change": {
+        "description": "Shannon entropy difference between consecutive reasoning steps",
+        "computation": "H(response_n) - H(response_n-1), where H = -Σ p(token) * log2(p(token))",
+        "thresholds": {
+          "green": "|-0.2 to +0.2| bits",
+          "yellow": "±0.2 to ±0.5 bits",
+          "red": "> ±0.5 bits"
+        },
+        "interpretation": "Sudden entropy spikes indicate information injection (hallucination), drops indicate repetition/collapse"
+      },
+      "logical_consistency": {
+        "description": "Entailment score between consecutive reasoning steps",
+        "computation": "Use NLI model (microsoft/deberta-v3-base-mnli) to check if step_n entails step_n+1",
+        "thresholds": {
+          "green": "entailment probability ≥ 0.70",
+          "yellow": "neutral probability > 0.50",
+          "red": "contradiction probability ≥ 0.40"
+        },
+        "interpretation": "Contradictions or neutral shifts suggest logical inconsistency (reasoning failure)"
+      },
+      "token_overlap": {
+        "description": "Jaccard similarity of token sets between prompt and response",
+        "computation": "J(P, R) = |P ∩ R| / |P ∪ R|",
+        "thresholds": {
+          "green": "≥ 0.30",
+          "yellow": "0.15 - 0.29",
+          "red": "< 0.15"
+        },
+        "interpretation": "Very low overlap suggests response is fabricated rather than grounded in prompt"
+      }
+    },
+    "guard_states": {
+      "green": {
+        "status": "VERIFIED",
+        "description": "All metrics within normal ranges, reasoning is coherent and grounded"
+      },
+      "yellow": {
+        "status": "CAUTION",
+        "description": "One or more metrics in warning zone, manual review recommended"
+      },
+      "red": {
+        "status": "ALERT",
+        "description": "Hallucination detected, reasoning step flagged for rejection or re-generation"
+      }
+    },
+    "guard_triggers": [
+      "semantic_drift",
+      "entropy_spike",
+      "logical_contradiction",
+      "token_divergence"
+    ],
+    "implementation": {
+      "script": "compute_hallucination_guards.py",
+      "dependencies": [
+        "sentence-transformers",
+        "transformers",
+        "torch",
+        "numpy"
+      ],
+      "integration_point": "Called during extract_trace_data.py to populate guard_state fields"
+    }
+  },
+  
+  "scripts": {
+    "extract_trace_data.py": {
+      "description": "Extract canonical reasoning trace from certificate chain",
+      "inputs": ["proofs/*.json"],
+      "outputs": ["visual_data.json"],
+      "dependencies": ["json", "hashlib", "datetime"],
+      "estimated_runtime": "< 5 seconds for 50 steps"
+    },
+    "compute_hallucination_guards.py": {
+      "description": "Compute hallucination detection metrics for each reasoning step",
+      "inputs": ["visual_data.json (partial)"],
+      "outputs": ["visual_data.json (with guard_state fields)"],
+      "dependencies": ["sentence-transformers", "transformers", "torch"],
+      "estimated_runtime": "~2-3 seconds per step (GPU recommended)"
+    },
+    "generate_reasoning_chain.py": {
+      "description": "Generate reasoning_chain.svg",
+      "inputs": ["visual_data.json"],
+      "outputs": ["reasoning_chain.svg"],
+      "dependencies": ["graphviz", "networkx"],
+      "estimated_runtime": "< 10 seconds"
+    },
+    "generate_hash_flow.py": {
+      "description": "Generate hash_flow.png",
+      "inputs": ["visual_data.json"],
+      "outputs": ["hash_flow.png"],
+      "dependencies": ["networkx", "matplotlib"],
+      "estimated_runtime": "< 10 seconds"
+    },
+    "generate_hallucination_guard.py": {
+      "description": "Generate hallucination_guard.png",
+      "inputs": ["visual_data.json"],
+      "outputs": ["hallucination_guard.png"],
+      "dependencies": ["matplotlib", "seaborn"],
+      "estimated_runtime": "< 5 seconds"
+    },
+    "generate_determinism_plot.py": {
+      "description": "Generate determinism_plot.png (requires replay run)",
+      "inputs": ["visual_data.json", "visual_data_replay.json"],
+      "outputs": ["determinism_plot.png"],
+      "dependencies": ["matplotlib"],
+      "estimated_runtime": "< 5 seconds"
+    },
+    "generate_master_certificate_tree.py": {
+      "description": "Generate master_certificate_tree.svg",
+      "inputs": ["visual_data.json"],
+      "outputs": ["master_certificate_tree.svg"],
+      "dependencies": ["graphviz"],
+      "estimated_runtime": "< 8 seconds"
+    },
+    "generate_interactive_dashboard.py": {
+      "description": "Generate interactive_proof.html",
+      "inputs": ["visual_data.json"],
+      "outputs": ["docs/interactive_proof.html"],
+      "dependencies": ["plotly", "dash"],
+      "estimated_runtime": "< 15 seconds"
+    },
+    "verify_visual_integrity.py": {
+      "description": "Verify visualizations match cryptographic proofs",
+      "inputs": ["visual_data.json", "all generated figures"],
+      "outputs": ["visual_verification_report.json"],
+      "dependencies": ["json", "hashlib", "PIL", "cairosvg"],
+      "estimated_runtime": "< 10 seconds"
+    },
+    "assemble_visual_proof.py": {
+      "description": "Assemble final visual proof document",
+      "inputs": ["visual_data.json", "all figures", "visual_verification_report.json"],
+      "outputs": ["docs/visual_proof.md"],
+      "dependencies": ["jinja2"],
+      "estimated_runtime": "< 3 seconds"
+    }
+  },
+  
+  "execution_pipeline": {
+    "description": "End-to-end visual proof generation pipeline",
+    "steps": [
+      {
+        "step": 1,
+        "script": "extract_trace_data.py",
+        "action": "Extract reasoning trace from certificates",
+        "output": "visual_data.json (without guard_state)"
+      },
+      {
+        "step": 2,
+        "script": "compute_hallucination_guards.py",
+        "action": "Compute hallucination metrics and populate guard_state",
+        "output": "visual_data.json (complete)"
+      },
+      {
+        "step": 3,
+        "scripts": [
+          "generate_reasoning_chain.py",
+          "generate_hash_flow.py",
+          "generate_hallucination_guard.py",
+          "generate_master_certificate_tree.py"
+        ],
+        "action": "Generate static figures",
+        "parallel": true,
+        "outputs": ["reasoning_chain.svg", "hash_flow.png", "hallucination_guard.png", "master_certificate_tree.svg"]
+      },
+      {
+        "step": 4,
+        "script": "generate_determinism_plot.py",
+        "action": "Run replay and generate determinism proof (optional)",
+        "output": "determinism_plot.png",
+        "note": "Requires re-running reasoning chain with same prompts"
+      },
+      {
+        "step": 5,
+        "script": "generate_interactive_dashboard.py",
+        "action": "Generate interactive HTML dashboard",
+        "output": "docs/interactive_proof.html"
+      },
+      {
+        "step": 6,
+        "script": "verify_visual_integrity.py",
+        "action": "Verify all visualizations match cryptographic proofs",
+        "output": "visual_verification_report.json"
+      },
+      {
+        "step": 7,
+        "script": "assemble_visual_proof.py",
+        "action": "Assemble final markdown document with embedded figures",
+        "output": "docs/visual_proof.md"
+      }
+    ],
+    "total_estimated_time": "60-90 seconds (excluding determinism replay)",
+    "orchestration": {
+      "script": "run_visual_pipeline.sh",
+      "description": "Bash script to execute entire pipeline in sequence"
+    }
+  },
+  
+  "integration": {
+    "makefile_target": "make visualize",
+    "cli_command": "bor visualize --session SESSION_ID",
+    "auto_trigger": "After successful verification (verify_proofs.py completes)",
+    "output_directory": "visual_proofs/",
+    "archival": "Copy to timestamped subdirectory for historical tracking"
+  },
+  
+  "validation": {
+    "qa_checklist": [
+      "All hashes in figures match certificate chain",
+      "Guard status colors correctly reflect metric values",
+      "Interactive dashboard loads and responds to user interaction",
+      "Verification report shows all checks passed",
+      "Watermarks applied to verified figures",
+      "Markdown document renders correctly with embedded images",
+      "Figure dimensions are readable and aesthetically pleasing"
+    ]
+  },
+  
+  "future_enhancements": [
+    "Add 3D reasoning graph for multi-branch reasoning paths",
+    "Real-time streaming visualization during proof generation",
+    "Comparative visualization for A/B reasoning experiments",
+    "Export to interactive Jupyter notebooks",
+    "Integration with LangSmith/Weights & Biases for tracing",
+    "Animated GIF showing reasoning chain construction in real-time",
+    "Semantic diff visualization between original and replay runs"
+  ]
+}
+
