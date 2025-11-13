@@ -1,8 +1,107 @@
 # BoR-Proof SDK — Deterministic, Replay-Verifiable Proof of Reasoning
 
-The **BoR-Proof SDK** extends the Blockchain of Reasoning (BoR) framework into a system that turns every computation into a verifiable proof.  
-Each reasoning step, configuration, and output is encoded deterministically so that the entire process can be **replayed and verified by anyone**.  
-The SDK provides a command-line interface (CLI) and Python API for generating and checking these proofs.
+[![PyPI version](https://img.shields.io/pypi/v/bor-sdk.svg)](https://pypi.org/project/bor-sdk/)
+[![Python versions](https://img.shields.io/pypi/pyversions/bor-sdk.svg)](https://pypi.org/project/bor-sdk/)
+[![License](https://img.shields.io/pypi/l/bor-sdk.svg)](https://github.com/kushagrab21/BoR-proof-SDK/blob/main/LICENSE)
+[![Tests](https://img.shields.io/badge/tests-passing-brightgreen)](https://github.com/kushagrab21/BoR-proof-SDK)
+
+> **Note:** This is intentionally a single, long-form document during the early stage of the project. Once the SDK enters broader public adoption, this README will be shortened and split into a scalable documentation structure.
+
+---
+
+## TL;DR
+
+**BoR-Proof SDK** turns every computation into a cryptographically verifiable proof. **Each reasoning step is hashed deterministically, creating a replay-verifiable chain that anyone can independently verify.** Install with `pip install bor-sdk`, then run `borp prove --all --initial '7' --config '{"offset":4}' --version 'v1.0' --stages examples.demo:add examples.demo:square --outdir out` to generate a proof bundle. **The same inputs always produce identical proof hashes (`HMASTER`, `HRICH`) across any machine or environment.** Verification is a single command: `borp verify-bundle --bundle out/rich_proof_bundle.json`. **This shifts trust from who computed something to what was computed** — enabling auditable AI, reproducible science, and provable enterprise workflows.
+
+---
+
+## Table of Contents
+
+1. [Introduction: Why We Built the Blockchain of Reasoning](#introduction-why-we-built-the-blockchain-of-reasoning)
+2. [Quickstart](#quickstart)
+3. [Architecture & Proof Chain](#architecture--proof-chain)
+4. [Installation & Usage](#installation--usage)
+5. [Mathematical Foundations](#mathematical-foundations)
+6. [Consensus Verification Protocol](#consensus-verification-protocol-v10)
+7. [Avalanche Verification Experiment](#1210-avalanche-verification-experiment)
+
+---
+
+## Conceptual Flow
+
+```
+Inputs (S₀, C, V)
+       │
+       ▼
+┌──────────────────┐
+│ Canonicalization │ ──→ H₀ (P₀)
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│ Deterministic    │ ──→ h₁, h₂, ..., hₙ (P₁)
+│ Steps            │
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│ Aggregation      │ ──→ HMASTER (P₂)
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│ Verification     │ ──→ HMASTER' (P₃)
+│ Replay           │
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│ Persistence      │ ──→ H_store (P₄)
+└──────────────────┘
+```
+
+---
+
+## Who Is This For?
+
+- **AI researchers** building verifiable reasoning pipelines
+- **Enterprise developers** needing auditable workflows (reconciliation, compliance, ETL)
+- **Scientists** requiring reproducible computational proofs
+- **Blockchain developers** extending immutability to logic, not just data
+- **DevOps engineers** implementing deterministic deployment verification
+- **Regulatory compliance teams** needing tamper-evident audit trails
+
+---
+
+## Quickstart
+
+```bash
+# Install from PyPI
+pip install bor-sdk
+
+# Generate a deterministic proof
+borp prove --all \
+  --initial '7' \
+  --config '{"offset":4}' \
+  --version 'v1.0' \
+  --stages examples.demo:add examples.demo:square \
+  --outdir out
+
+# Verify the proof bundle
+borp verify-bundle --bundle out/rich_proof_bundle.json
+```
+
+**Expected output:**
+```
+[BoR P₀] Initialization Proof Hash = ...
+[BoR P₁] Step #1 'add' → hᵢ = ...
+[BoR P₂] HMASTER = ...
+[BoR RICH] Bundle created
+[BoR RICH] VERIFIED
+```
+
+✅ **Works seamlessly on Google Colab, Jupyter Notebook, VS Code, or any terminal with Python ≥ 3.9.**  
+This demonstrates BoR-Proof's **environment-independent determinism** — identical inputs always yield identical proof hashes.
 
 ---
 
@@ -12,13 +111,13 @@ The SDK provides a command-line interface (CLI) and Python API for generating an
 
 The **Blockchain of Reasoning (BoR)** makes reasoning verifiable.
 
-Modern systems can store and track data reliably, but the logic that processes that data remains a black box.  
+Modern systems can store and track data reliably, but **the logic that processes that data remains a black box.**  
 BoR changes this by turning every computational step — in an accounting workflow, an AI pipeline, or a data transformation — into a deterministic, replayable proof.
 
 - If a workflow is re-run with the same inputs, it produces the exact same result, bit-for-bit.
 - If anything changes, the proof diverges immediately.
 
-This shifts trust from **who computed something** to **what was computed**.
+**This shifts trust from who computed something to what was computed.**
 
 ### What BoR Enables
 
@@ -31,7 +130,7 @@ BoR represents any process as a sequence of canonical reasoning steps:
 5. Link it to the next step
 6. Produce a single proof-fingerprint representing the entire workflow
 
-This fingerprint can be verified across machines, environments, or time without relying on the original system.
+**This fingerprint can be verified across machines, environments, or time without relying on the original system.**
 
 Workflows that previously hid their logic now produce provable trails:
 
@@ -53,7 +152,7 @@ Today's systems:
 - flag changes, but not correctness
 - automate workflows without exposing why decisions were made
 
-With AI adoption, governance requirements, and automation complexity rising, systems need a way to prove their reasoning.
+**With AI adoption, governance requirements, and automation complexity rising, systems need a way to prove their reasoning.**
 
 BoR provides that foundation: **deterministic, inspectable logic that can be trusted, replayed, and certified.**
 
@@ -61,7 +160,7 @@ BoR provides that foundation: **deterministic, inspectable logic that can be tru
 
 #### Verifiability as a foundation for scale
 
-Systems that can be proven correct scale more safely.  
+**Systems that can be proven correct scale more safely.**  
 BoR treats verification as a core building block rather than an afterthought.
 
 #### A structured memory for reasoning
@@ -72,7 +171,7 @@ Once each step has a proof identity:
 - long workflows retain their causal structure
 - context becomes an explicit artifact, not an implicit side effect
 
-This is the missing substrate for scalable, long-horizon reasoning.
+**This is the missing substrate for scalable, long-horizon reasoning.**
 
 #### A practical toolkit for deterministic logic
 
@@ -82,11 +181,11 @@ BoR functions like a combination of:
 - **a deterministic compiler** (for reproducible execution)
 - **a blockchain** (for immutable linkage)
 
-This creates a reusable base layer for building reliable reasoning systems.
+**This creates a reusable base layer for building reliable reasoning systems.**
 
 #### Human–machine collaborative reasoning
 
-Because each step is pure, inspectable, and replayable, humans and AI systems can safely co-develop reasoning trails.
+**Because each step is pure, inspectable, and replayable, humans and AI systems can safely co-develop reasoning trails.**
 
 #### A path toward trustworthy AI
 
@@ -97,13 +196,13 @@ BoR does not replace AI — it surrounds it with verifiability, ensuring that:
 - decisions can be replayed
 - drift becomes detectable
 
-This turns black-box pipelines into auditable systems.
+**This turns black-box pipelines into auditable systems.**
 
 ### What This Unlocks
 
 #### 1. Proof APIs for enterprise workflows
 
-Reconciliation, compliance, ETL, fraud detection, and more can be verified with a single API call.
+**Reconciliation, compliance, ETL, fraud detection, and more can be verified with a single API call.**
 
 #### 2. Version control for reasoning
 
@@ -134,7 +233,7 @@ Similar to how blockchain introduced transaction identity, BoR introduces:
 - **proof-of-reasoning** — a replayable audit trail
 - **temporal invariance** — the guarantee that logic does not drift
 
-This is the base layer automation and AI have been missing.
+**This is the base layer automation and AI have been missing.**
 
 ### Summary
 
@@ -145,62 +244,9 @@ It enables scalable automation, structured reasoning memory, human–AI collabor
 
 ---
 
-### 🧭 Run Instantly (Google Colab, Jupyter, or Any Python Environment)
+## Architecture & Proof Chain
 
-You can try **BoR-Proof SDK** instantly — no setup or cloning required.
-
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/#create=true)
-
-```python
-# BoR-Proof SDK Quickstart (Colab / Jupyter)
-
-# 1. Install from PyPI
-!pip install -q bor-sdk
-
-# 2. Check CLI help
-!borp --help
-
-# 3. Generate and verify a deterministic proof
-!borp prove --all \
-  --initial '7' \
-  --config '{"offset": 4}' \
-  --version 'v1.0' \
-  --stages examples.demo:add examples.demo:square \
-  --outdir out
-
-# 4. Verify proof bundle (structural check)
-!borp verify-bundle --bundle out/rich_proof_bundle.json
-
-# 5. (Optional) Register proof node for consensus
-!borp register-hash --user "colab-user" --label "demo-node"
-
-# 6. Inspect the proof registry file
-!cat proof_registry.json
-```
-
-**For terminal/bash environments:**
-
-```bash
-pip install bor-sdk
-borp --help
-
-# Example: Generate and verify a deterministic proof
-borp prove --all \
-  --initial '7' \
-  --config '{"offset":4}' \
-  --version 'v1.0' \
-  --stages examples.demo:add examples.demo:square \
-  --outdir out
-
-borp verify-bundle --bundle out/rich_proof_bundle.json
-```
-
-✅ Works seamlessly on **Google Colab**, **Jupyter Notebook**, **VS Code**, or any terminal with Python ≥ 3.9.  
-This demonstrates BoR-Proof's **environment-independent determinism** — identical inputs always yield identical proof hashes (`HMASTER`, `HRICH`).
-
----
-
-## 1. Overview: The Proof Chain
+### Overview: The Proof Chain
 
 Every reasoning run is represented as a 5-layer proof stack:
 
@@ -214,9 +260,7 @@ Every reasoning run is represented as a 5-layer proof stack:
 
 Together they form a cryptographically closed reasoning ledger.
 
----
-
-## 2. Sub-Proofs (System-Level Validations)
+### Sub-Proofs (System-Level Validations)
 
 Eight higher-order sub-proofs check that the system behaves as it should:
 
@@ -231,20 +275,39 @@ Eight higher-order sub-proofs check that the system behaves as it should:
 | PP | Persistence | JSON and SQLite stores produce identical `HMASTER` |
 | TRP | Temporal Reproducibility | proofs stable across time delays |
 
-The hashes of these eight sub-proofs are concatenated and re-hashed to produce **H_RICH**, the single commitment for the entire run.
+**The hashes of these eight sub-proofs are concatenated and re-hashed to produce H_RICH, the single commitment for the entire run.**
+
+### Architecture
+
+```
+bor/
+├── core.py          # Proof engine (P₀–P₂)
+├── decorators.py    # @step purity contract (P₁)
+├── hash_utils.py    # Canonical encoding + environment hash (P₀)
+├── store.py         # Persistence proofs (P₄)
+├── verify.py        # Replay + bundle verification (P₃)
+├── subproofs.py     # DIP→TRP system checks
+├── bundle.py        # Bundle builder and index generator
+└── cli.py           # Unified CLI interface
+
+examples/
+└── demo.py          # Demonstration stages
+```
 
 ---
 
-## 3. Installation
+## Installation & Usage
 
-### Quick Install (Recommended)
+### Installation
+
+#### Quick Install (Recommended)
 
 ```bash
 pip install bor-sdk
 borp --help
 ```
 
-### Developer Install (for Contributors)
+#### Developer Install (for Contributors)
 
 ```bash
 git clone https://github.com/kushagrab21/BoR-proof-SDK.git
@@ -255,11 +318,9 @@ pip install -e ".[dev]"
 borp --help
 ```
 
----
+### Generating and Verifying Proofs
 
-## 4. Generating and Verifying Proofs (from First Principles)
-
-### 4.1 Generate a Proof (P₀–P₄ + Sub-Proofs)
+#### Generate a Proof (P₀–P₄ + Sub-Proofs)
 
 Each command below corresponds directly to one logical assertion:
 
@@ -280,11 +341,9 @@ This command:
 4. Executes all sub-proofs (DIP→TRP)
 5. Produces the Rich Proof Bundle (`out/rich_proof_bundle.json`)
 
----
+#### Verify a Proof (Fast Structural Check)
 
-### 4.2 Verify a Proof (Fast Structural Check)
-
-Checks the cryptographic integrity of the bundle without replaying computations:
+**Checks the cryptographic integrity of the bundle without replaying computations:**
 
 ```bash
 borp verify-bundle --bundle out/rich_proof_bundle.json
@@ -292,11 +351,9 @@ borp verify-bundle --bundle out/rich_proof_bundle.json
 
 This recomputes sub-proof hashes and verifies that the stored `H_RICH` matches the recomputed value.
 
----
+#### Verify with Replay (Strong Check)
 
-### 4.3 Verify with Replay (Strong Check)
-
-Fully re-executes the reasoning steps and recomputes `HMASTER`:
+**Fully re-executes the reasoning steps and recomputes `HMASTER`:**
 
 ```bash
 borp verify-bundle --bundle out/rich_proof_bundle.json \
@@ -306,9 +363,7 @@ borp verify-bundle --bundle out/rich_proof_bundle.json \
 
 If the recomputed `HMASTER` equals the stored value, the reasoning process is proven identical.
 
----
-
-### 4.4 Show the Proof Trace
+#### Show the Proof Trace
 
 Displays the reasoning sequence in plain text:
 
@@ -316,11 +371,9 @@ Displays the reasoning sequence in plain text:
 borp show --trace out/rich_proof_bundle.json --from bundle
 ```
 
-Each line shows function, input, output, and hash — allowing step-by-step auditability.
+**Each line shows function, input, output, and hash — allowing step-by-step auditability.**
 
----
-
-### 4.5 Persist Proofs (P₄ Storage Integrity)
+#### Persist Proofs (P₄ Storage Integrity)
 
 Stores and audits proofs across JSON and SQLite backends:
 
@@ -330,9 +383,7 @@ borp persist --label demo --primary out/primary.json --backend both
 
 This ensures that saved proofs can later be checked for tampering using their `H_store` hashes.
 
----
-
-## 5. Example Output
+### Example Output
 
 ```
 [BoR P₀] Initialization Proof Hash = ...
@@ -349,9 +400,7 @@ This ensures that saved proofs can later be checked for tampering using their `H
 }
 ```
 
----
-
-## 6. Proof Validation Matrix
+### Proof Validation Matrix
 
 | Command | Proof Layer | Guarantee |
 |---------|-------------|-----------|
@@ -361,9 +410,7 @@ This ensures that saved proofs can later be checked for tampering using their `H
 | `borp persist` | P₄ | Confirms stored proof authenticity |
 | `borp show --trace` | — | Renders human-readable logical sequence |
 
----
-
-## 7. Troubleshooting
+### Troubleshooting
 
 **Error:** `ModuleNotFoundError: No module named 'bor'`  
 → The global Python PATH is being used. Run CLI via the virtual environment:
@@ -395,9 +442,7 @@ pip install -e .
 > ```
 > to guarantee correct imports.
 
----
-
-## 8. Independent Verification Checklist
+### Independent Verification Checklist
 
 1. Clone the repository and install dependencies.
 2. Run `pytest -q` → expect all 88 tests to pass.
@@ -407,52 +452,16 @@ pip install -e .
 
 ---
 
-## 9. Citation
+## Mathematical Foundations
 
-```bibtex
-@software{kushagra_bor_proof_sdk,
-  author = {Kushagra Bhatnagar},
-  title  = {BoR-Proof SDK: Deterministic, Replay-Verifiable Proof System},
-  year   = {2025},
-  url    = {https://github.com/kushagrab21/BoR-proof-SDK}
-}
-```
+<details>
+<summary><strong>Understanding the Results: A First-Principled Explanation</strong></summary>
 
----
-
-## 10. Architecture
-
-```
-bor/
-├── core.py          # Proof engine (P₀–P₂)
-├── decorators.py    # @step purity contract (P₁)
-├── hash_utils.py    # Canonical encoding + environment hash (P₀)
-├── store.py         # Persistence proofs (P₄)
-├── verify.py        # Replay + bundle verification (P₃)
-├── subproofs.py     # DIP→TRP system checks
-├── bundle.py        # Bundle builder and index generator
-└── cli.py           # Unified CLI interface
-
-examples/
-└── demo.py          # Demonstration stages
-```
-
----
-
-## 11. License
-
-MIT License  
-© 2025 Kushagra Bhatnagar. All rights reserved.
-
----
-
-## 12. Understanding the Results: A First-Principled Explanation
-
-### 12.1 How to Read the Verification Output
+### How to Read the Verification Output
 
 When you run any BoR-Proof command, every line corresponds to a layer in the logical proof ledger:
 
-In BoR-Proof, **a reasoning chain is a closed deterministic system whose behavior is fully captured by its cryptographic invariants**.
+**In BoR-Proof, a reasoning chain is a closed deterministic system whose behavior is fully captured by its cryptographic invariants.**
 
 | Output Prefix | Proof Layer | Interpretation |
 |---------------|-------------|----------------|
@@ -463,7 +472,7 @@ In BoR-Proof, **a reasoning chain is a closed deterministic system whose behavio
 | `[BoR P₄]` | Persistence | Proof stored in canonical JSON and SQLite forms; file integrity hashes `H_store` computed |
 | `[BoR RICH]` | Sub-Proof Integrity | Eight higher-order sub-proofs re-hashed to form `HRICH`, the single immutable commitment for the entire reasoning run |
 
-If you see `[BoR RICH] VERIFIED`, it means **every hash, sub-proof, and master digest matched**.  
+If you see `[BoR RICH] VERIFIED`, it means **every hash, sub-proof, and master digest matched.**  
 
 This is equivalent to a mathematical proof of identity:
 
@@ -471,9 +480,7 @@ This is equivalent to a mathematical proof of identity:
 HMASTER' = HMASTER  and  HRICH' = HRICH
 ```
 
----
-
-### 12.2 Why These Results Hold Mathematically
+### Why These Results Hold Mathematically
 
 BoR-Proof relies on three foundational axioms of deterministic computation:
 
@@ -488,7 +495,7 @@ f(S, C, V) = S'  ⇒  H(f, S, C, V) is constant
 **2. Cryptographic Hash Collision Resistance**
 
 The probability that two different inputs produce the same hash is negligible (≈ 2⁻²⁵⁶ for SHA-256).  
-Thus if two proofs have identical hashes, they are indistinguishable at the bit level.
+**Thus if two proofs have identical hashes, they are indistinguishable at the bit level.**
 
 ```
 H(x) = H(y)  ⇒  x = y  (with overwhelming probability)
@@ -502,14 +509,12 @@ The master proof is built by hashing hashes in sequence:
 HMASTER = H(h₁ || h₂ || ... || hₙ)
 ```
 
-Any change in any step (even one bit) alters the aggregate hash entirely.  
+**Any change in any step (even one bit) alters the aggregate hash entirely.**  
 Hence reproducibility is equivalent to equality of master hashes.
 
 **Result:** When the replayed chain recomputes the same `HMASTER` and all sub-proofs match their stored values, the reasoning process is **mathematically guaranteed to be identical** to the original.
 
----
-
-### 12.3 Conceptual Model: Proof as a Chain of Invariants
+### Conceptual Model: Proof as a Chain of Invariants
 
 ```
                     Inputs (S₀, C, V)
@@ -553,12 +558,10 @@ Hence reproducibility is equivalent to equality of master hashes.
 
 **Figure 1:** Logical flow from inputs to HRICH.
 
-Every arrow represents a **deterministic and hash-preserving transformation**.  
+Every arrow represents a **deterministic and hash-preserving transformation.**  
 Therefore, identical arrows (executions) always produce identical end-states.
 
----
-
-### 12.4 Mathematical Summary
+### Mathematical Summary
 
 | Property | Formal Statement | Consequence |
 |----------|------------------|-------------|
@@ -571,9 +574,7 @@ Therefore, identical arrows (executions) always produce identical end-states.
 **Conclusion:** Proof validity is grounded in mathematics, not authority.  
 Verification is a direct comparison between observed and expected invariants — a **proof of equality** rather than an **assertion of trust**.
 
----
-
-### 12.5 Interpreting a Verified Proof (Example)
+### Interpreting a Verified Proof (Example)
 
 ```
 [BoR P₂] HMASTER = dde71a3e4391...
@@ -593,15 +594,13 @@ Verification is a direct comparison between observed and expected invariants —
 - `HMASTER` identifies the reasoning chain uniquely
 - Matching `primary_master_replay_match` proves that the reasoning logic can be replayed exactly
 - `HRICH_match` ensures every sub-proof (DIP→TRP) agrees with stored commitments
-- Together, they constitute **a cryptographic certificate of logical identity**
+- **Together, they constitute a cryptographic certificate of logical identity**
 
----
-
-### 12.6 Why Integrity Matters Beyond Code
+### Why Integrity Matters Beyond Code
 
 **1. Scientific Reproducibility**
 
-Any researcher can rerun the reasoning and obtain identical hashes, establishing *proof of scientific consistency*.
+**Any researcher can rerun the reasoning and obtain identical hashes, establishing proof of scientific consistency.**
 
 **2. Auditable AI and Computation**
 
@@ -613,24 +612,20 @@ A signed proof ledger acts as immutable evidence of computation, admissible with
 
 **4. Philosophical Shift**
 
-Trust migrates from *who* computed to *what* was computed — a move from belief to verifiable knowledge.
+**Trust migrates from who computed to what was computed — a move from belief to verifiable knowledge.**
 
----
-
-### 12.7 In Essence
+### In Essence
 
 BoR-Proof SDK establishes a new baseline for reasoning integrity:
 
 > **Correctness = Equality of Hashes**  
 > **Trust = Deterministic Reproducibility**
 
-Every `[VERIFIED]` message you see is not a subjective approval — it is a **mathematical identity proof** between two complete reasoning universes.
+**Every `[VERIFIED]` message you see is not a subjective approval — it is a mathematical identity proof between two complete reasoning universes.**
 
----
+### Where Function Details Live
 
-### 12.8 Where Function Details Live
-
-Each reasoning function used in a BoR-Proof run (for example `examples.demo:add` and `examples.demo:square`) is **automatically embedded inside the proof artifact itself**.
+Each reasoning function used in a BoR-Proof run (for example `examples.demo:add` and `examples.demo:square`) is **automatically embedded inside the proof artifact itself.**
 
 During execution, each step records:
 
@@ -646,16 +641,18 @@ During execution, each step records:
 ```
 
 When verification occurs, these same functions are **re-imported and re-executed** to recompute identical fingerprints.  
-If `HMASTER` remains unchanged, that means — by mathematical necessity — **the same functions produced the same outputs**.
+**If `HMASTER` remains unchanged, that means — by mathematical necessity — the same functions produced the same outputs.**
 
 **Therefore:**
 
 - The **README** defines the logical framework
 - The **proof bundle** contains the function-level evidence
 
+</details>
+
 ---
 
-## 12.9 Quickstart for New Nodes
+## Quickstart for New Nodes
 
 If you only want to reproduce the official proof and register your node, you can do it in two commands.
 
@@ -700,15 +697,13 @@ Check the file `proof_registry.json`; it now contains your node entry.
 Then submit it via pull request or GitHub issue (see Step 2 submission details).
 Average time ≈ 60 seconds.
 
----
-
 > **Note:** Future versions of BoR-Proof will extend this into a full deterministic reasoning compiler, where each reasoning step is not only hashed but also represented as a canonical intermediate form, allowing reasoning graphs to be recompiled, diffed, and verified like code.
 
 ---
 
 ## 12.10 Avalanche Verification Experiment
 
-The **avalanche effect** is a fundamental property of cryptographic hash functions: even a tiny change in input should cause approximately 50% of the output bits to flip. This experiment demonstrates that BoR-Proof SDK exhibits this property — a single-line logic change causes massive cryptographic divergence in `HMASTER`.
+The **avalanche effect** is a fundamental property of cryptographic hash functions: even a tiny change in input should cause approximately 50% of the output bits to flip. **This experiment demonstrates that BoR-Proof SDK exhibits this property — a single-line logic change causes massive cryptographic divergence in `HMASTER`.**
 
 ### Purpose
 
@@ -851,7 +846,7 @@ else:
 
 ### Why This Matters
 
-The avalanche effect proves that BoR-Proof SDK's cryptographic hashing is **cryptographically sound**:
+**The avalanche effect proves that BoR-Proof SDK's cryptographic hashing is cryptographically sound:**
 - **Tiny logic changes** produce **completely different** proof identities
 - **No silent failures** — any reasoning modification is immediately detectable
 - **Mathematical guarantee** — hash collision resistance ensures uniqueness
@@ -860,21 +855,19 @@ This experiment provides **independent verification** that BoR-Proof SDK correct
 
 ---
 
-## 13. Consensus Verification Protocol (v1.0)
+## Consensus Verification Protocol (v1.0)
 
 **Establishing Public Consensus on Deterministic Reasoning Proofs**
 
 ### Step 0 — Purpose of Consensus
 
 The BoR-Proof SDK already guarantees *local determinism*: identical inputs always yield identical proofs.  
-This section extends that guarantee to *public consensus* — multiple independent verifiers reproducing the same proof hash (`HRICH`) and confirming it publicly.  
+**This section extends that guarantee to public consensus — multiple independent verifiers reproducing the same proof hash (`HRICH`) and confirming it publicly.**  
 In short:
 
 > **If multiple users obtain the same `HRICH`, the reasoning process itself has reached consensus.**
 
 Consensus here is epistemic, not social — a collective proof that logic, not opinion, determines correctness.
-
----
 
 ### Step 1 — Overview (1-Minute Summary)
 
@@ -892,8 +885,6 @@ That's all — **two commands, one file, under a minute**.
 
 No networking protocols, blockchain mining, or complex configuration required.
 
----
-
 ### Step 2 — Run Your Node
 
 #### **Prerequisites**
@@ -907,8 +898,6 @@ python -m venv .venv
 source .venv/bin/activate      # or .venv\Scripts\activate on Windows
 pip install -e .
 ```
-
----
 
 #### **Step 1 — Generate a Deterministic Proof**
 
@@ -939,8 +928,6 @@ borp prove --all \
 
 **Time:** ~10 seconds
 
----
-
 #### **Step 2 — Register Your Consensus Node**
 
 Automatically record your proof metadata:
@@ -965,8 +952,6 @@ borp register-hash \
 ```
 
 **Time:** ~1 second
-
----
 
 #### **Step 3 — Verify Your Registry Entry**
 
@@ -994,8 +979,6 @@ cat proof_registry.json
 
 **Time:** ~1 second
 
----
-
 #### **Step 4 — Submit to Public Registry**
 
 You can contribute your consensus entry in two ways:
@@ -1014,8 +997,6 @@ You can contribute your consensus entry in two ways:
 
 **Time:** ~30 seconds
 
----
-
 #### **Step 5 — Consensus Confirmation (Passive)**
 
 Once **3 or more independent verifiers** produce the same `HRICH`, the consensus epoch is confirmed.
@@ -1023,8 +1004,6 @@ Once **3 or more independent verifiers** produce the same `HRICH`, the consensus
 **You're done!** Your entry now acts as one *verifier node* in the reasoning consensus network.
 
 **Total Active Time:** < 1 minute
-
----
 
 ### Step 3 — Understand the Genesis Block
 
@@ -1052,9 +1031,7 @@ When two or more additional verifiers independently reproduce the same hash, the
 }
 ```
 
-This marks the **first consensus epoch** — proof that reasoning reproducibility holds across machines and observers.
-
----
+**This marks the first consensus epoch — proof that reasoning reproducibility holds across machines and observers.**
 
 ### Step 4 — Optional CLI Parameters
 
@@ -1078,8 +1055,6 @@ borp register-hash \
 
 Run `register-hash` multiple times to append additional proof entries to the same registry. Each run adds one verifier node entry.
 
----
-
 ### Step 5 — What Your Proof Means
 
 A verified consensus run means:
@@ -1095,9 +1070,7 @@ HRICH(v₁) = HRICH(v₂) = ... = HRICH(vₙ)
   ⇒  Collective Proof of Reasoning Identity
 ```
 
-Consensus, therefore, is **equality of invariants across observers** — extending blockchain's *data immutability* into *reasoning immutability*.
-
----
+**Consensus, therefore, is equality of invariants across observers — extending blockchain's data immutability into reasoning immutability.**
 
 ### 13.7 Summary Table
 
@@ -1108,8 +1081,6 @@ Consensus, therefore, is **equality of invariants across observers** — extendi
 | `proof_registry.json` | Public ledger of submissions | Cross-verifier equality |
 | Consensus Epoch | ≥ 3 identical `HRICH` | Public reasoning consensus |
 
----
-
 ### 13.8 Closing Principle
 
 BoR-Proof consensus transforms determinism into trust:
@@ -1117,9 +1088,7 @@ BoR-Proof consensus transforms determinism into trust:
 > **Correctness = Equality of Hashes**  
 > **Trust = Equality across Observers**
 
-When these equalities hold, reasoning itself has reached consensus — the first reproducible proof of logic as a shared invariant.
-
----
+**When these equalities hold, reasoning itself has reached consensus — the first reproducible proof of logic as a shared invariant.**
 
 ### 13.9 Common Pitfalls
 
@@ -1129,3 +1098,23 @@ When these equalities hold, reasoning itself has reached consensus — the first
 | Old `borp` on PATH | `which borp` → `/opt/anaconda3/bin/borp` | Reactivate venv or run `.venv/bin/borp` |
 | No `proof_registry.json` created | Forgot `register-hash` step | Run `borp register-hash --label my-node` |
 | Different H_RICH from others | Changed inputs/config | Use exact demo parameters |
+
+---
+
+## Citation
+
+```bibtex
+@software{kushagra_bor_proof_sdk,
+  author = {Kushagra Bhatnagar},
+  title  = {BoR-Proof SDK: Deterministic, Replay-Verifiable Proof System},
+  year   = {2025},
+  url    = {https://github.com/kushagrab21/BoR-proof-SDK}
+}
+```
+
+---
+
+## License
+
+MIT License  
+© 2025 Kushagra Bhatnagar. All rights reserved.
